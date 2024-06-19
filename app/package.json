@@ -1,0 +1,17 @@
+{
+  "name": "@sagebook/server",
+  "version": "1.0.0",
+  "description": "Sagebook server",
+  "main": "./src/main.js",
+  "scripts": {
+  },
+  "author": "amerrit2@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+  },
+  "files": [
+    "./src/**/*.{d.ts,js}",
+    "!**/tests/**",
+    "!**/mocks/**"
+  ]
+}
