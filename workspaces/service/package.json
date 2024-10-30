@@ -1,0 +1,17 @@
+{
+  "name": "@sagebook/service",
+  "version": "1.0.0",
+  "description": "Sagebook service",
+  "author": "Adam Merritt <amerrit2@gmail.com>",
+  "license": "ISC",
+  "main": "./src/main.js",
+  "files": [
+    "./src/**/*.{d.ts,js}",
+    "!**/tests/**",
+    "!**/mocks/**"
+  ],
+  "scripts": {
+  },
+  "dependencies": {
+  }
+}

@@ -1,23 +1,32 @@
 {
-  "name": "@sagebook",
+  "name": "sagebook",
   "private": true,
   "version": "1.0.0",
   "description": "Sagebook monorepo",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "lint": "tslint -c tslint.json src/**/*.ts",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "test": "vitest --run",
+    "build": "tsc --build",
+    "watch": "concurrently 'tsc --build --watch' 'npx -w @sagebook/db-client prisma generate --watch'",
+    "lint": "eslint **/src/**/*.ts",
+    "clean": "tsc --build --clean"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@eslint/js": "^9.5.0",
+  "workspaces": [
+    "./workspaces/*"
+  ],
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "@types/node": "^22.8.4",
     "@types/eslint__js": "^8.42.3",
     "eslint": "^8.57.0",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^7.13.1",
-    "vitest": "^1.6.0"
-  },
-  "typings": "./lib/index.d.ts"
+    "@eslint/js": "^9.5.0",
+    "typescript-eslint": "^7.13.1",    
+    "vitest": "^1.6.0",
+    "concurrently": "^9.0.1",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.3.3"
+  }
 }

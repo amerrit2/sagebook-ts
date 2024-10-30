@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Unit {
+  tsp
+  tbsp
+  cup
+  pint
+  gallon
+  floz
+  oz
+  ml
+  l
+}
+
+model Instruction {
+  id          Int      @id @default(autoincrement())
+  text        String   @db.Text
+  durationSec Int      @db.Integer
+  kind        String   @db.VarChar(40)
+  recipes     Recipe[]
+}
+
+model Ingredient {
+  name   String   @id
+  amount Int      @db.SmallInt
+  unit   Unit
+  Recipe Recipe[]
+}
+
+model Recipe {
+  id           Int           @id @default(autoincrement())
+  ingredients  Ingredient[]
+  instructions Instruction[]
+
+  meals Meal[]
+}
+
+model Meal {
+  id      Int      @id @default(autoincrement())
+  recipes Recipe[]
+
+  rotations Rotation[]
+}
+
+enum ActionKind {
+  shop
+  cook
+  eatLeftovers
+  eatOut
+  orderIn
+}
+
+model Frequency {
+  id         Int        @id @default(autoincrement())
+  kind       ActionKind
+  value      Int
+  Rotation   Rotation   @relation(fields: [rotationId], references: [id])
+  rotationId Int
+}
+
+model Rotation {
+  id          Int         @id @default(autoincrement())
+  meals       Meal[]
+  frequencies Frequency[]
+}
+
+model User {
+  email        String @id @db.VarChar(230)
+  passwordHash Bytes
+  passwordSalt Bytes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

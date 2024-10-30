@@ -1,5 +1,7 @@
 *.js
 *.d.ts
-node_modules
+tsconfig.tsbuildinfo
+node_modules/
+dist/
 
 !eslint.config.js
