@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
-import { validatePassword } from './validation';
+import { validatePassword } from './validation.js';
 
 export class SagebookDatabase {
     #prisma = new PrismaClient();
@@ -53,11 +53,7 @@ export class SagebookDatabase {
     }
 
     async verifyUser(email: string, password: string) {
-        const user = await this.#prisma.user.findUnique({
-            where: {
-                email,
-            },
-        });
+        const user = await this.getUser(email);
 
         if (!user) {
             return false;
@@ -79,7 +75,15 @@ export class SagebookDatabase {
         return false;
     }
 
-    async getUsers() {
-        return await this.#prisma.user.findMany();
+    getUsers() {
+        return this.#prisma.user.findMany();
+    }
+
+    getUser(email: string) {
+        return this.#prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
     }
 }

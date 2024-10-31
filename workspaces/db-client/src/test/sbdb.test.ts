@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ChildProcess, spawn } from 'node:child_process';
-import { SagebookDatabase } from '../sbdb';
+import { SagebookDatabase } from '../sbdb.js';
 import { resolve } from 'node:path';
 
 describe('sbdb', () => {

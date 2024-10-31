@@ -3,6 +3,6 @@
     "compilerOptions": {
         "noEmit": true
     },
-    "include": ["**/src/**/*.ts"],
+    "include": ["**/src/**/*.ts", "eslint.config.js", "vitest.workspace.ts"],
     "exclude": ["**/dist/**"]
 }

@@ -4,6 +4,7 @@
   "description": "Sagebook service",
   "author": "Adam Merritt <amerrit2@gmail.com>",
   "license": "ISC",
+  "type": "module",
   "main": "./src/main.js",
   "files": [
     "./src/**/*.{d.ts,js}",
@@ -11,7 +12,20 @@
     "!**/mocks/**"
   ],
   "scripts": {
+    "start": "node ./dist/app.js"
   },
   "dependencies": {
+    "@sagebook/db-client": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-jwt": "^8.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-themes": "^1.4.3",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/swagger-ui-express": "^4.1.7",
+    "tsoa": "^6.5.1"
   }
 }

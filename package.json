@@ -7,10 +7,14 @@
   "scripts": {
     "prepublish": "npm run build",
     "test": "vitest --run",
-    "build": "tsc --build",
-    "watch": "concurrently 'tsc --build --watch' 'npx -w @sagebook/db-client prisma generate --watch'",
+    "build:prisma": "npx -w @sagebook/db-client prisma generate",
+    "build:tsoa": "npx -w @sagebook/service tsoa spec-and-routes",
+    "build": "npm run build:prisma && tsc --build && npm run build:tsoa",
+    "watch:prisma": "npx -w @sagebook/db-client prisma generate --watch",
+    "watch": "concurrently 'tsc --build --watch' 'npm run watch:prisma'",
     "lint": "eslint **/src/**/*.ts",
-    "clean": "tsc --build --clean"
+    "clean": "tsc --build --clean",
+    "start": "npm run -w @sagebook/service start"
   },
   "author": "",
   "license": "ISC",

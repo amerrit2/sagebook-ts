@@ -1,0 +1,183 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"LoginBody": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {
+			"jwt": {
+				"type": "oauth2",
+				"flows": {
+					"implicit": {
+						"authorizationUrl": "/login",
+						"scopes": {}
+					}
+				}
+			}
+		}
+	},
+	"info": {
+		"title": "@sagebook/service",
+		"version": "1.0.0",
+		"description": "Sagebook service",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {
+			"name": "Adam Merritt ",
+			"email": "amerrit2@gmail.com"
+		}
+	},
+	"paths": {
+		"/users/{email}": {
+			"get": {
+				"operationId": "GetUser",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"updatedAt": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"createdAt": {
+											"type": "string",
+											"format": "date-time"
+										},
+										"passwordSalt": {
+											"type": "string",
+											"format": "byte"
+										},
+										"passwordHash": {
+											"type": "string",
+											"format": "byte"
+										},
+										"email": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"updatedAt",
+										"createdAt",
+										"passwordSalt",
+										"passwordHash",
+										"email"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Retreives a user",
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "email",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/users": {
+			"post": {
+				"operationId": "CreateUser",
+				"responses": {
+					"201": {
+						"description": "Created"
+					}
+				},
+				"description": "Creates a new user",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"password": {
+										"type": "string"
+									},
+									"email": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"password",
+									"email"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginBody"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}

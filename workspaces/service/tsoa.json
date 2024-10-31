@@ -1,0 +1,20 @@
+{
+    "entryFile": "src/app.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras",
+    "controllerPathGlobs": ["src/**/*.controller.ts"],
+    "spec": {
+      "outputDirectory": "src/tsoa",
+      "specVersion": 3,
+      "securityDefinitions": {
+        "jwt": {
+          "type": "oauth2",
+          "authorizationUrl": "/login",
+          "flow": "implicit"
+        }
+      }
+    },
+    "routes": {
+      "routesDir": "src/tsoa",
+      "esm": true
+    }
+  }
