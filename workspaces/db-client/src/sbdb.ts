@@ -1,6 +1,19 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { validatePassword } from './validation.js';
+
+function removeSensitiveUserProps(user: User | null) {
+    if (!user) return user;
+
+    const safeUser = {
+        ...user,
+    } as Partial<User>;
+
+    delete safeUser?.passwordHash;
+    delete safeUser?.passwordSalt;
+
+    return safeUser as Omit<User, 'passwordHash' | 'passwordSalt'>;
+}
 
 export class SagebookDatabase {
     #prisma = new PrismaClient();
@@ -53,7 +66,11 @@ export class SagebookDatabase {
     }
 
     async verifyUser(email: string, password: string) {
-        const user = await this.getUser(email);
+        const user = await this.#prisma.user.findUnique({
+            where: {
+                email,
+            },
+        });
 
         if (!user) {
             return false;
@@ -75,15 +92,19 @@ export class SagebookDatabase {
         return false;
     }
 
-    getUsers() {
-        return this.#prisma.user.findMany();
+    async getUsers() {
+        return (await this.#prisma.user.findMany()).map((user) =>
+            removeSensitiveUserProps(user),
+        );
     }
 
-    getUser(email: string) {
-        return this.#prisma.user.findUnique({
-            where: {
-                email,
-            },
-        });
+    async getUser(email: string) {
+        return removeSensitiveUserProps(
+            await this.#prisma.user.findUnique({
+                where: {
+                    email,
+                },
+            }),
+        );
     }
 }

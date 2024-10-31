@@ -49,60 +49,94 @@
 		}
 	},
 	"paths": {
-		"/users/{email}": {
+		"/users": {
 			"get": {
-				"operationId": "GetUser",
+				"operationId": "GetUsers",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"properties": {
-										"updatedAt": {
-											"type": "string",
-											"format": "date-time"
+									"anyOf": [
+										{
+											"properties": {
+												"updatedAt": {
+													"type": "string",
+													"format": "date-time"
+												},
+												"createdAt": {
+													"type": "string",
+													"format": "date-time"
+												},
+												"passwordSalt": {
+													"type": "string",
+													"format": "byte"
+												},
+												"passwordHash": {
+													"type": "string",
+													"format": "byte"
+												},
+												"email": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"updatedAt",
+												"createdAt",
+												"passwordSalt",
+												"passwordHash",
+												"email"
+											],
+											"type": "object"
 										},
-										"createdAt": {
-											"type": "string",
-											"format": "date-time"
-										},
-										"passwordSalt": {
-											"type": "string",
-											"format": "byte"
-										},
-										"passwordHash": {
-											"type": "string",
-											"format": "byte"
-										},
-										"email": {
-											"type": "string"
+										{
+											"items": {
+												"properties": {
+													"updatedAt": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"passwordSalt": {
+														"type": "string",
+														"format": "byte"
+													},
+													"passwordHash": {
+														"type": "string",
+														"format": "byte"
+													},
+													"email": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"updatedAt",
+													"createdAt",
+													"passwordSalt",
+													"passwordHash",
+													"email"
+												],
+												"type": "object"
+											},
+											"type": "array"
 										}
-									},
-									"required": [
-										"updatedAt",
-										"createdAt",
-										"passwordSalt",
-										"passwordHash",
-										"email"
-									],
-									"type": "object"
+									]
 								}
 							}
 						}
 					}
 				},
 				"description": "Retreives a user",
-				"security": [
-					{
-						"jwt": []
-					}
-				],
+				"security": [],
 				"parameters": [
 					{
-						"in": "path",
+						"in": "query",
 						"name": "email",
-						"required": true,
+						"required": false,
 						"schema": {
 							"type": "string"
 						}
@@ -110,7 +144,7 @@
 				]
 			}
 		},
-		"/users": {
+		"/users/create": {
 			"post": {
 				"operationId": "CreateUser",
 				"responses": {

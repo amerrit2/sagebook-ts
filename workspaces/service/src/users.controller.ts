@@ -3,8 +3,8 @@ import {
     Body,
     Controller,
     Get,
-    Path,
     Post,
+    Query,
     Route,
     Security,
     SuccessResponse,
@@ -15,17 +15,18 @@ export class UsersController extends Controller {
     /**
      * Retreives a user
      */
-    @Security('jwt')
-    @Get('{email}')
-    public async getUser(@Path() email: string) {
-        return (await getDb()).getUser(email);
+    // @Security('jwt')ß
+    @Get()
+    public async getUsers(@Query() email?: string) {
+        const db = await getDb();
+        return email ? db.getUser(email) : db.getUsers();
     }
 
     /**
      * Creates a new user
      */
-    @SuccessResponse('201', 'Created')
-    @Post()
+    @SuccessResponse('201', 'Created')    
+    @Post('create')
     public async createUser(
         @Body() requestBody: { email: string; password: string },
     ) {

@@ -15,6 +15,7 @@
     },
     "routes": {
       "routesDir": "src/tsoa",
-      "esm": true
+      "esm": true,
+      "authenticationModule": "src/authentication.ts"
     }
   }
