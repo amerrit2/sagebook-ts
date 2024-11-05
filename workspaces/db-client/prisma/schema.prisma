@@ -18,41 +18,80 @@ enum Unit {
   tbsp
   cup
   pint
+  quart
   gallon
   floz
   oz
   ml
   l
+  unit
+}
+
+// Global - Belongs to many IngredientAmount instances.
+model Ingredient {
+  name String @id
+
+  IngredientAmount IngredientAmount[]
+}
+
+model IngredientAmount {
+  id             Int    @id @default(autoincrement())
+  ingredientName String
+  amount         Int    @db.SmallInt
+  unit           Unit
+  instructionId  Int
+
+  // Contains
+  ingredient Ingredient @relation(fields: [ingredientName], references: [name])
+
+  // Owned by
+  instruction Instruction @relation(fields: [instructionId], references: [id])
 }
 
 model Instruction {
-  id          Int      @id @default(autoincrement())
-  text        String   @db.Text
-  durationSec Int      @db.Integer
-  kind        String   @db.VarChar(40)
-  recipes     Recipe[]
-}
+  id          Int    @id @default(autoincrement())
+  text        String @db.Text
+  durationSec Int    @db.Integer
+  kind        String @db.VarChar(40)
+  recipeId    Int
 
-model Ingredient {
-  name   String   @id
-  amount Int      @db.SmallInt
-  unit   Unit
-  Recipe Recipe[]
+  // Contains
+  ingredientAmounts IngredientAmount[]
+
+  // Owned by
+  recipe Recipe @relation(fields: [recipeId], references: [id])
 }
 
 model Recipe {
-  id           Int           @id @default(autoincrement())
-  ingredients  Ingredient[]
+  id         Int    @id @default(autoincrement())
+  name       String
+  ownerEmail String @db.VarChar(230)
+
+  // Contains
   instructions Instruction[]
 
-  meals Meal[]
+  // Belongs to
+  meals     Meal[]
+  userDatas UserData[]
+
+  // Owned by
+  owner User @relation(fields: [ownerEmail], references: [email])
 }
 
 model Meal {
-  id      Int      @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
+  name       String
+  ownerEmail String @db.VarChar(230)
+
+  // Contains
   recipes Recipe[]
 
+  // Belongs to
   rotations Rotation[]
+  userDatas UserData[]
+
+  // Owned by
+  owner User @relation(fields: [ownerEmail], references: [email])
 }
 
 enum ActionKind {
@@ -66,22 +105,49 @@ enum ActionKind {
 model Frequency {
   id         Int        @id @default(autoincrement())
   kind       ActionKind
-  value      Int
-  Rotation   Rotation   @relation(fields: [rotationId], references: [id])
+  value      Int // Ratio value
   rotationId Int
+
+  // Owned by
+  rotation Rotation @relation(fields: [rotationId], references: [id])
 }
 
 model Rotation {
-  id          Int         @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
+  name       String
+  ownerEmail String @db.VarChar(230)
+
+  // Contains
   meals       Meal[]
   frequencies Frequency[]
+
+  // Belongs to
+  userData UserData[]
+
+  // Owned by
+  owner User @relation(fields: [ownerEmail], references: [email])
 }
 
 model User {
-  email        String @id @db.VarChar(230)
+  email        String    @id @db.VarChar(230)
   passwordHash Bytes
   passwordSalt Bytes
+  data         UserData?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Belongs to
+  ownedRecipes   Recipe[]
+  ownedMeals     Meal[]
+  ownedRotations Rotation[]
+}
+
+model UserData {
+  userEmail String @id @unique @db.VarChar(230)
+
+  // Contains
+  rotations Rotation[]
+  meals     Meal[]
+  recipes   Recipe[]
+
+  // Owned by
+  user User @relation(fields: [userEmail], references: [email])
 }

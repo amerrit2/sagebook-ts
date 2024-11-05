@@ -1,6 +1,7 @@
 import { Body, Controller, Post, Route } from 'tsoa';
-import { getDb } from './db.js';
+import { getDb } from '../db.js';
 import jwt from 'jsonwebtoken';
+import { signJwt } from '../authentication.js';
 
 interface LoginBody {
     email: string;
@@ -17,20 +18,11 @@ export class LoginController extends Controller {
             return 'Invalid login credentials';
         }
 
-        // TODO put jwt functions in own file, return promises
-        const token = jwt.sign(
-            {
-                email: body.email,
-            },
-            process.env.TOKEN_SECRET!, // todo - remove non-null
-            {
-                issuer: 'localhost',
-                audience: 'sagebook-app',
-            },
-        );
+        const token = signJwt({
+            email: body.email,
+        });
 
-        this.setStatus(200);
-        this.setHeader('Set-Cookie', `token=${token}`);
-        return;
+        this.setHeader('Set-Cookie', `x-access-token=${token}`);
+        return 'Success';
     }
 }

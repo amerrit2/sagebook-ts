@@ -7,6 +7,158 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"_36_Enums.Unit": {
+				"type": "string",
+				"enum": [
+					"tsp",
+					"tbsp",
+					"cup",
+					"pint",
+					"quart",
+					"gallon",
+					"floz",
+					"oz",
+					"ml",
+					"l",
+					"unit"
+				]
+			},
+			"_36_Enums.ActionKind": {
+				"type": "string",
+				"enum": [
+					"shop",
+					"cook",
+					"eatLeftovers",
+					"eatOut",
+					"orderIn"
+				]
+			},
+			"Pick_Instruction.Exclude_keyofInstruction.recipeId-or-id__": {
+				"properties": {
+					"text": {
+						"type": "string"
+					},
+					"durationSec": {
+						"type": "number",
+						"format": "double"
+					},
+					"kind": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"text",
+					"durationSec",
+					"kind"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_Instruction.recipeId-or-id_": {
+				"$ref": "#/components/schemas/Pick_Instruction.Exclude_keyofInstruction.recipeId-or-id__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName__": {
+				"properties": {
+					"unit": {
+						"$ref": "#/components/schemas/_36_Enums.Unit"
+					},
+					"amount": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"unit",
+					"amount"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_IngredientAmount.id-or-instructionId-or-ingredientName_": {
+				"$ref": "#/components/schemas/Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"DefaultSelection_Prisma._36_IngredientPayload_": {
+				"properties": {
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object"
+			},
+			"Ingredient": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_IngredientPayload_",
+				"description": "Model Ingredient"
+			},
+			"CreateIngredientAmount": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/Omit_IngredientAmount.id-or-instructionId-or-ingredientName_"
+					},
+					{
+						"properties": {
+							"ingredient": {
+								"$ref": "#/components/schemas/Ingredient"
+							}
+						},
+						"required": [
+							"ingredient"
+						],
+						"type": "object"
+					}
+				]
+			},
+			"CreateInstruction": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/Omit_Instruction.recipeId-or-id_"
+					},
+					{
+						"properties": {
+							"ingredientAmounts": {
+								"items": {
+									"$ref": "#/components/schemas/CreateIngredientAmount"
+								},
+								"type": "array"
+							}
+						},
+						"required": [
+							"ingredientAmounts"
+						],
+						"type": "object"
+					}
+				]
+			},
+			"Pick_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail__": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"instructions": {
+						"items": {
+							"$ref": "#/components/schemas/CreateInstruction"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name",
+					"instructions"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail_": {
+				"$ref": "#/components/schemas/Pick_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"CreateRecipeParams": {
+				"$ref": "#/components/schemas/Omit_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail_"
+			},
 			"LoginBody": {
 				"properties": {
 					"email": {
@@ -29,7 +181,6 @@
 				"type": "oauth2",
 				"flows": {
 					"implicit": {
-						"authorizationUrl": "/login",
 						"scopes": {}
 					}
 				}
@@ -49,110 +200,244 @@
 		}
 	},
 	"paths": {
-		"/users": {
+		"/user": {
 			"get": {
-				"operationId": "GetUsers",
+				"operationId": "GetUserData",
 				"responses": {
 					"200": {
 						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
-									"anyOf": [
-										{
-											"properties": {
-												"updatedAt": {
-													"type": "string",
-													"format": "date-time"
-												},
-												"createdAt": {
-													"type": "string",
-													"format": "date-time"
-												},
-												"passwordSalt": {
-													"type": "string",
-													"format": "byte"
-												},
-												"passwordHash": {
-													"type": "string",
-													"format": "byte"
-												},
-												"email": {
-													"type": "string"
-												}
-											},
-											"required": [
-												"updatedAt",
-												"createdAt",
-												"passwordSalt",
-												"passwordHash",
-												"email"
-											],
-											"type": "object"
-										},
-										{
+									"properties": {
+										"meals": {
 											"items": {
 												"properties": {
-													"updatedAt": {
-														"type": "string",
-														"format": "date-time"
+													"recipes": {
+														"items": {
+															"properties": {
+																"ownerEmail": {
+																	"type": "string"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "number",
+																	"format": "double"
+																}
+															},
+															"required": [
+																"ownerEmail",
+																"name",
+																"id"
+															],
+															"type": "object"
+														},
+														"type": "array"
 													},
-													"createdAt": {
-														"type": "string",
-														"format": "date-time"
-													},
-													"passwordSalt": {
-														"type": "string",
-														"format": "byte"
-													},
-													"passwordHash": {
-														"type": "string",
-														"format": "byte"
-													},
-													"email": {
+													"name": {
 														"type": "string"
+													},
+													"id": {
+														"type": "number",
+														"format": "double"
 													}
 												},
 												"required": [
-													"updatedAt",
-													"createdAt",
-													"passwordSalt",
-													"passwordHash",
-													"email"
+													"recipes",
+													"name",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"rotations": {
+											"items": {
+												"properties": {
+													"frequencies": {
+														"items": {
+															"properties": {
+																"rotationId": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"value": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"kind": {
+																	"$ref": "#/components/schemas/_36_Enums.ActionKind"
+																},
+																"id": {
+																	"type": "number",
+																	"format": "double"
+																}
+															},
+															"required": [
+																"rotationId",
+																"value",
+																"kind",
+																"id"
+															],
+															"type": "object"
+														},
+														"type": "array"
+													},
+													"meals": {
+														"items": {
+															"properties": {
+																"ownerEmail": {
+																	"type": "string"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "number",
+																	"format": "double"
+																}
+															},
+															"required": [
+																"ownerEmail",
+																"name",
+																"id"
+															],
+															"type": "object"
+														},
+														"type": "array"
+													},
+													"name": {
+														"type": "string"
+													},
+													"id": {
+														"type": "number",
+														"format": "double"
+													}
+												},
+												"required": [
+													"frequencies",
+													"meals",
+													"name",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"recipes": {
+											"items": {
+												"properties": {
+													"instructions": {
+														"items": {
+															"properties": {
+																"ingredientAmounts": {
+																	"items": {
+																		"properties": {
+																			"ingredient": {
+																				"properties": {
+																					"name": {
+																						"type": "string"
+																					}
+																				},
+																				"required": [
+																					"name"
+																				],
+																				"type": "object"
+																			},
+																			"unit": {
+																				"$ref": "#/components/schemas/_36_Enums.Unit"
+																			},
+																			"amount": {
+																				"type": "number",
+																				"format": "double"
+																			}
+																		},
+																		"required": [
+																			"ingredient",
+																			"unit",
+																			"amount"
+																		],
+																		"type": "object"
+																	},
+																	"type": "array"
+																},
+																"kind": {
+																	"type": "string"
+																},
+																"durationSec": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"text": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"ingredientAmounts",
+																"kind",
+																"durationSec",
+																"text"
+															],
+															"type": "object"
+														},
+														"type": "array"
+													},
+													"name": {
+														"type": "string"
+													},
+													"id": {
+														"type": "number",
+														"format": "double"
+													}
+												},
+												"required": [
+													"instructions",
+													"name",
+													"id"
 												],
 												"type": "object"
 											},
 											"type": "array"
 										}
-									]
+									},
+									"required": [
+										"meals",
+										"rotations",
+										"recipes"
+									],
+									"type": "object"
 								}
 							}
 						}
 					}
 				},
-				"description": "Retreives a user",
-				"security": [],
-				"parameters": [
+				"description": "Retreives a user's data",
+				"security": [
 					{
-						"in": "query",
-						"name": "email",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
+						"jwt": []
 					}
-				]
+				],
+				"parameters": []
 			}
 		},
-		"/users/create": {
+		"/user/create": {
 			"post": {
 				"operationId": "CreateUser",
 				"responses": {
-					"201": {
-						"description": "Created"
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
 					}
 				},
-				"description": "Creates a new user",
+				"description": "Creates a new user and creates session jwt",
 				"security": [],
 				"parameters": [],
 				"requestBody": {
@@ -179,6 +464,498 @@
 				}
 			}
 		},
+		"/rotations": {
+			"get": {
+				"operationId": "GetRotation",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"frequencies": {
+											"items": {
+												"properties": {
+													"value": {
+														"type": "number",
+														"format": "double"
+													},
+													"kind": {
+														"$ref": "#/components/schemas/_36_Enums.ActionKind"
+													}
+												},
+												"required": [
+													"value",
+													"kind"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"meals": {
+											"items": {
+												"properties": {
+													"recipes": {
+														"items": {
+															"properties": {
+																"instructions": {
+																	"items": {
+																		"properties": {
+																			"ingredientAmounts": {
+																				"items": {
+																					"properties": {
+																						"ingredient": {
+																							"properties": {
+																								"name": {
+																									"type": "string"
+																								}
+																							},
+																							"required": [
+																								"name"
+																							],
+																							"type": "object"
+																						},
+																						"unit": {
+																							"$ref": "#/components/schemas/_36_Enums.Unit"
+																						},
+																						"amount": {
+																							"type": "number",
+																							"format": "double"
+																						}
+																					},
+																					"required": [
+																						"ingredient",
+																						"unit",
+																						"amount"
+																					],
+																					"type": "object"
+																				},
+																				"type": "array"
+																			},
+																			"kind": {
+																				"type": "string"
+																			},
+																			"durationSec": {
+																				"type": "number",
+																				"format": "double"
+																			},
+																			"text": {
+																				"type": "string"
+																			}
+																		},
+																		"required": [
+																			"ingredientAmounts",
+																			"kind",
+																			"durationSec",
+																			"text"
+																		],
+																		"type": "object"
+																	},
+																	"type": "array"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "number",
+																	"format": "double"
+																}
+															},
+															"required": [
+																"instructions",
+																"name",
+																"id"
+															],
+															"type": "object"
+														},
+														"type": "array"
+													},
+													"name": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"recipes",
+													"name"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"name": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"frequencies",
+										"meals",
+										"name"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/recipes": {
+			"post": {
+				"operationId": "CreateRecipe",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"instructions": {
+											"items": {
+												"properties": {
+													"ingredientAmounts": {
+														"items": {
+															"properties": {
+																"ingredient": {
+																	"properties": {
+																		"name": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"name"
+																	],
+																	"type": "object"
+																},
+																"unit": {
+																	"$ref": "#/components/schemas/_36_Enums.Unit"
+																},
+																"amount": {
+																	"type": "number",
+																	"format": "double"
+																}
+															},
+															"required": [
+																"ingredient",
+																"unit",
+																"amount"
+															],
+															"type": "object"
+														},
+														"type": "array"
+													},
+													"kind": {
+														"type": "string"
+													},
+													"durationSec": {
+														"type": "number",
+														"format": "double"
+													},
+													"text": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"ingredientAmounts",
+													"kind",
+													"durationSec",
+													"text"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"name": {
+											"type": "string"
+										},
+										"id": {
+											"type": "number",
+											"format": "double"
+										}
+									},
+									"required": [
+										"instructions",
+										"name",
+										"id"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateRecipeParams"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/recipes/{recipeId}": {
+			"get": {
+				"operationId": "GetAllRecipes",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"properties": {
+												"instructions": {
+													"items": {
+														"properties": {
+															"ingredientAmounts": {
+																"items": {
+																	"properties": {
+																		"ingredient": {
+																			"properties": {
+																				"name": {
+																					"type": "string"
+																				}
+																			},
+																			"required": [
+																				"name"
+																			],
+																			"type": "object"
+																		},
+																		"unit": {
+																			"$ref": "#/components/schemas/_36_Enums.Unit"
+																		},
+																		"amount": {
+																			"type": "number",
+																			"format": "double"
+																		}
+																	},
+																	"required": [
+																		"ingredient",
+																		"unit",
+																		"amount"
+																	],
+																	"type": "object"
+																},
+																"type": "array"
+															},
+															"kind": {
+																"type": "string"
+															},
+															"durationSec": {
+																"type": "number",
+																"format": "double"
+															},
+															"text": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"ingredientAmounts",
+															"kind",
+															"durationSec",
+															"text"
+														],
+														"type": "object"
+													},
+													"type": "array"
+												},
+												"name": {
+													"type": "string"
+												},
+												"id": {
+													"type": "number",
+													"format": "double"
+												}
+											},
+											"required": [
+												"instructions",
+												"name",
+												"id"
+											],
+											"type": "object"
+										},
+										{
+											"items": {
+												"allOf": [
+													{
+														"properties": {
+															"instructions": {
+																"items": {
+																	"allOf": [
+																		{
+																			"properties": {
+																				"ingredientAmounts": {
+																					"items": {
+																						"allOf": [
+																							{
+																								"properties": {
+																									"ingredient": {
+																										"properties": {
+																											"name": {
+																												"type": "string"
+																											}
+																										},
+																										"required": [
+																											"name"
+																										],
+																										"type": "object"
+																									}
+																								},
+																								"required": [
+																									"ingredient"
+																								],
+																								"type": "object"
+																							},
+																							{
+																								"properties": {
+																									"instructionId": {
+																										"type": "number",
+																										"format": "double"
+																									},
+																									"unit": {
+																										"$ref": "#/components/schemas/_36_Enums.Unit"
+																									},
+																									"amount": {
+																										"type": "number",
+																										"format": "double"
+																									},
+																									"ingredientName": {
+																										"type": "string"
+																									},
+																									"id": {
+																										"type": "number",
+																										"format": "double"
+																									}
+																								},
+																								"required": [
+																									"instructionId",
+																									"unit",
+																									"amount",
+																									"ingredientName",
+																									"id"
+																								],
+																								"type": "object"
+																							}
+																						]
+																					},
+																					"type": "array"
+																				}
+																			},
+																			"required": [
+																				"ingredientAmounts"
+																			],
+																			"type": "object"
+																		},
+																		{
+																			"properties": {
+																				"recipeId": {
+																					"type": "number",
+																					"format": "double"
+																				},
+																				"kind": {
+																					"type": "string"
+																				},
+																				"durationSec": {
+																					"type": "number",
+																					"format": "double"
+																				},
+																				"text": {
+																					"type": "string"
+																				},
+																				"id": {
+																					"type": "number",
+																					"format": "double"
+																				}
+																			},
+																			"required": [
+																				"recipeId",
+																				"kind",
+																				"durationSec",
+																				"text",
+																				"id"
+																			],
+																			"type": "object"
+																		}
+																	]
+																},
+																"type": "array"
+															}
+														},
+														"required": [
+															"instructions"
+														],
+														"type": "object"
+													},
+													{
+														"properties": {
+															"ownerEmail": {
+																"type": "string"
+															},
+															"name": {
+																"type": "string"
+															},
+															"id": {
+																"type": "number",
+																"format": "double"
+															}
+														},
+														"required": [
+															"ownerEmail",
+															"name",
+															"id"
+														],
+														"type": "object"
+													}
+												]
+											},
+											"type": "array"
+										}
+									]
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "recipeId",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
 		"/login": {
 			"post": {
 				"operationId": "Login",
@@ -188,7 +965,11 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "string"
+									"type": "string",
+									"enum": [
+										"Success",
+										"Invalid login credentials"
+									]
 								}
 							}
 						}

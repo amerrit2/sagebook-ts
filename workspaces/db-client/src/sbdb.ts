@@ -1,19 +1,22 @@
-import { PrismaClient, User } from '@prisma/client';
+import {
+    Ingredient,
+    IngredientAmount,
+    Instruction,
+    PrismaClient,
+} from '@prisma/client';
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { validatePassword } from './validation.js';
+import { Recipes, SelectRecipe } from './model-controllers/recipes.js';
+import { Rotations } from './model-controllers/rotations.js';
+import { Meals } from './model-controllers/meals.js';
 
-function removeSensitiveUserProps(user: User | null) {
-    if (!user) return user;
-
-    const safeUser = {
-        ...user,
-    } as Partial<User>;
-
-    delete safeUser?.passwordHash;
-    delete safeUser?.passwordSalt;
-
-    return safeUser as Omit<User, 'passwordHash' | 'passwordSalt'>;
-}
+export type CreateIngredientAmount = Omit<
+    IngredientAmount,
+    'id' | 'instructionId' | 'ingredientName'
+> & { ingredient: Ingredient };
+export type CreateInstruction = Omit<Instruction, 'recipeId' | 'id'> & {
+    ingredientAmounts: CreateIngredientAmount[];
+};
 
 export class SagebookDatabase {
     #prisma = new PrismaClient();
@@ -23,6 +26,10 @@ export class SagebookDatabase {
     get prisma() {
         return this.#prisma;
     }
+
+    recipes = new Recipes(this.#prisma);
+    meals = new Meals(this.#prisma);
+    rotations = new Rotations(this.#prisma);
 
     static async connect(timeoutMs = 5000) {
         const sbdb = new this();
@@ -56,11 +63,15 @@ export class SagebookDatabase {
             });
         });
 
-        await this.#prisma.user.create({
+        await this.#prisma.userData.create({
             data: {
-                email,
-                passwordHash,
-                passwordSalt,
+                user: {
+                    create: {
+                        email,
+                        passwordHash,
+                        passwordSalt,
+                    },
+                },
             },
         });
     }
@@ -92,19 +103,51 @@ export class SagebookDatabase {
         return false;
     }
 
-    async getUsers() {
-        return (await this.#prisma.user.findMany()).map((user) =>
-            removeSensitiveUserProps(user),
-        );
+    getUsers() {
+        return this.#prisma.user.findMany({
+            select: {
+                _count: true,
+                email: true,
+            },
+        });
     }
 
-    async getUser(email: string) {
-        return removeSensitiveUserProps(
-            await this.#prisma.user.findUnique({
-                where: {
-                    email,
+    getUser(email: string) {
+        return this.#prisma.user.findUnique({
+            where: {
+                email,
+            },
+            select: {
+                email: true,
+            },
+        });
+    }
+
+    getUserData(email: string) {
+        return this.#prisma.userData.findUnique({
+            where: {
+                userEmail: email,
+            },
+            select: {
+                meals: {
+                    select: {
+                        id: true,
+                        name: true,
+                        recipes: true,
+                    },
                 },
-            }),
-        );
+                recipes: {
+                    select: SelectRecipe,
+                },
+                rotations: {
+                    select: {
+                        name: true,
+                        id: true,
+                        frequencies: true,
+                        meals: true,
+                    },
+                },
+            },
+        });
     }
 }

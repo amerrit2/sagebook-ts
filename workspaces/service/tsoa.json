@@ -8,7 +8,6 @@
       "securityDefinitions": {
         "jwt": {
           "type": "oauth2",
-          "authorizationUrl": "/login",
           "flow": "implicit"
         }
       }

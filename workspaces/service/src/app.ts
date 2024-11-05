@@ -5,13 +5,18 @@ import Spec from './tsoa/swagger.json' with { type: 'json' };
 import * as SwaggerUi from 'swagger-ui-express';
 import { SwaggerTheme, SwaggerThemeNameEnum } from 'swagger-themes';
 import { configDotenv } from 'dotenv';
+import cookieParser from 'cookie-parser';
+import { resolve } from 'node:path';
 
-configDotenv();
+configDotenv({
+    path: resolve(import.meta.dirname, '..', '.env'),
+});
 
 const app: express.Application = (express as any).default();
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
+app.use(cookieParser());
 
 app.use(
     '/api-docs',

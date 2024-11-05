@@ -3,5 +3,7 @@
 tsconfig.tsbuildinfo
 node_modules/
 dist/
+migrations/*
+!migration_lock.toml
 
 !eslint.config.js

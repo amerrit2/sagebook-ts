@@ -19,6 +19,8 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=local@local.com
       - PGADMIN_DEFAULT_PASSWORD=local
@@ -30,3 +32,4 @@ services:
 
 volumes:
   db-data:
+  pgadmin-data:
