@@ -1,22 +1,9 @@
-import {
-    Ingredient,
-    IngredientAmount,
-    Instruction,
-    PrismaClient,
-} from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { validatePassword } from './validation.js';
 import { Recipes, SelectRecipe } from './model-controllers/recipes.js';
 import { Rotations } from './model-controllers/rotations.js';
 import { Meals } from './model-controllers/meals.js';
-
-export type CreateIngredientAmount = Omit<
-    IngredientAmount,
-    'id' | 'instructionId' | 'ingredientName'
-> & { ingredient: Ingredient };
-export type CreateInstruction = Omit<Instruction, 'recipeId' | 'id'> & {
-    ingredientAmounts: CreateIngredientAmount[];
-};
 
 export class SagebookDatabase {
     #prisma = new PrismaClient();
@@ -49,6 +36,9 @@ export class SagebookDatabase {
         await this.#prisma.$disconnect();
     }
 
+    /**
+     * @returns userId of the newly created user
+     */
     async createUser(email: string, password: string) {
         validatePassword(password);
 
@@ -63,7 +53,7 @@ export class SagebookDatabase {
             });
         });
 
-        await this.#prisma.userData.create({
+        const user = await this.#prisma.userData.create({
             data: {
                 user: {
                     create: {
@@ -74,8 +64,13 @@ export class SagebookDatabase {
                 },
             },
         });
+
+        return user.userId;
     }
 
+    /**
+     * @returns null if invalid, otherwise userid
+     */
     async verifyUser(email: string, password: string) {
         const user = await this.#prisma.user.findUnique({
             where: {
@@ -84,7 +79,7 @@ export class SagebookDatabase {
         });
 
         if (!user) {
-            return false;
+            return null;
         }
 
         const newHash = await new Promise<Buffer>((a, r) => {
@@ -98,9 +93,9 @@ export class SagebookDatabase {
         });
 
         if (timingSafeEqual(newHash, user.passwordHash)) {
-            return true;
+            return user.id;
         }
-        return false;
+        return null;
     }
 
     getUsers() {
@@ -108,14 +103,15 @@ export class SagebookDatabase {
             select: {
                 _count: true,
                 email: true,
+                id: true,
             },
         });
     }
 
-    getUser(email: string) {
+    getUser(id: string) {
         return this.#prisma.user.findUnique({
             where: {
-                email,
+                id,
             },
             select: {
                 email: true,
@@ -123,17 +119,17 @@ export class SagebookDatabase {
         });
     }
 
-    getUserData(email: string) {
+    getUserData(userId: string) {
         return this.#prisma.userData.findUnique({
             where: {
-                userEmail: email,
+                userId,
             },
             select: {
                 meals: {
                     select: {
                         id: true,
                         name: true,
-                        recipes: true,
+                        recipes: { select: SelectRecipe },
                     },
                 },
                 recipes: {

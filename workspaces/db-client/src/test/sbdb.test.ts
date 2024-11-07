@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ChildProcess, spawn } from 'node:child_process';
-import { CreateInstruction, SagebookDatabase } from '../sbdb.js';
+import { SagebookDatabase } from '../sbdb.js';
 import { resolve } from 'node:path';
 import { CreateFrequency } from '../model-controllers/rotations.js';
+import { $Enums } from '@prisma/client';
 
 describe('sbdb', () => {
     let dbContainer: ChildProcess | undefined;
@@ -21,7 +22,6 @@ describe('sbdb', () => {
 
         await db.prisma.ingredientAmount.deleteMany();
         await db.prisma.ingredient.deleteMany();
-        await db.prisma.instruction.deleteMany();
         await db.prisma.meal.deleteMany();
         await db.prisma.recipe.deleteMany();
         await db.prisma.frequency.deleteMany();
@@ -38,105 +38,104 @@ describe('sbdb', () => {
     it('should create and verify a user', async () => {
         await db.createUser('bob@email.com', 'bobsPassword');
 
-        expect(await db.verifyUser('bob@email.com', 'bobsPassword')).toBe(true);
+        await expect(
+            db.verifyUser('bob@email.com', 'bobsPassword'),
+        ).resolves.toBeTypeOf('string');
     });
 
     it('should fail to verify a user', async () => {
         await db.createUser('alice@email.com', 'alicesPassword');
 
         await expect(db.verifyUser('alice@email.com', 'wrong')).resolves.toBe(
-            false,
+            null,
         );
     });
 
     it("should fail when user doesn't exist", async () => {
         await expect(
             db.verifyUser('non-existent@whatever.com', 'heyo'),
-        ).resolves.toBe(false);
+        ).resolves.toBe(null);
     });
 
     describe('With Carol', () => {
-        const carol = 'carol@email.com';
+        let carol: string;
         beforeAll(async () => {
-            await db.createUser(carol, 'carolsPassword');
+            carol = await db.createUser('carol@email.com', 'carolsPassword');
         });
 
         it('should create and get a recipe', async () => {
-            const instructions: CreateInstruction[] = [
+            const instructions = [
+                'Fill a large bowl with about 2 cups of ice and 3 cups of water',
+                'Bring large pot of water to a boil',
+                'Using a slotted spoon or tongs, gently lower eggs, one at a ' +
+                    'time, into water. Return to a boil, cover, and reduce heat to ' +
+                    'medium-low. Cook for 12 minutes.',
+                'Transfer eggs to ice water.  Let sit for about 30 seconds',
+            ];
+
+            const ingredientAmounts = [
                 {
-                    text: 'Fill a large bowl with about 2 cups of ice and 3 cups of water',
-                    kind: 'combine',
-                    durationSec: 1 * 60,
-                    ingredientAmounts: [
-                        {
-                            ingredient: { name: 'Ice' },
-                            amount: 2,
-                            unit: 'cup',
-                        },
-                        {
-                            ingredient: { name: 'Water' },
-                            amount: 3,
-                            unit: 'cup',
-                        },
-                    ],
+                    ingredient: {
+                        name: 'Ice',
+                        dietaryRestrictions: [],
+                    },
+                    amount: 2,
+                    unit: $Enums.Unit.cup,
                 },
                 {
-                    text: 'Bring large pot of water to a boil',
-                    durationSec: 5 * 60,
-                    kind: 'boil',
-                    ingredientAmounts: [
-                        {
-                            ingredient: { name: 'Water' },
-                            amount: 2,
-                            unit: 'quart',
-                        },
-                    ],
+                    ingredient: {
+                        name: 'Water',
+                        dietaryRestrictions: [],
+                    },
+                    amount: 11,
+                    unit: $Enums.Unit.cup,
                 },
                 {
-                    text:
-                        'Using a slotted spoon or tongs, gently lower eggs, one at a ' +
-                        'time, into water. Return to a boil, cover, and reduce heat to ' +
-                        'medium-low. Cook for 12 minutes.',
-                    durationSec: 12 * 60,
-                    kind: 'boil',
-                    ingredientAmounts: [
-                        {
-                            ingredient: { name: 'Eggs' },
-                            amount: 2,
-                            unit: 'unit',
-                        },
-                    ],
-                },
-                {
-                    text: 'Transfer eggs to ice water.  Let sit for about 30 seconds',
-                    durationSec: 30,
-                    kind: 'combine',
-                    ingredientAmounts: [],
+                    ingredient: {
+                        name: 'Eggs',
+                        dietaryRestrictions: [],
+                    },
+                    amount: 2,
+                    unit: $Enums.Unit.unit,
                 },
             ];
 
             const recipe = await db.recipes.createRecipe({
-                ownerEmail: carol,
+                ownerId: carol,
                 name: "Carol's hard boiled eggs",
                 instructions,
+                cookTimeSec: 18 * 60,
+                prepTimeSec: 5 * 60,
+                ingredientAmounts,
+                numServings: 1,
             });
 
             await expect(
                 recipe && db.recipes.getRecipe(recipe.id),
             ).resolves.toEqual({
+                id: recipe.id,
                 name: "Carol's hard boiled eggs",
                 instructions,
-                id: recipe.id,
-            });
+                cookTimeSec: 18 * 60,
+                prepTimeSec: 5 * 60,
+                numServings: 1,
+                ingredientAmounts,
+            } satisfies Awaited<
+                ReturnType<(typeof db)['recipes']['getRecipe']>
+            >);
 
             await expect(db.getUserData(carol)).resolves.toEqual({
                 meals: [],
                 rotations: [],
                 recipes: [
                     {
+                        id: recipe.id,
                         name: "Carol's hard boiled eggs",
                         instructions,
-                        id: recipe.id,
+                        cookTimeSec: 18 * 60,
+                        prepTimeSec: 5 * 60,
+                        numServings: 1,
+                        ingredientAmounts,
                     },
                 ],
             });
@@ -144,50 +143,52 @@ describe('sbdb', () => {
 
         it('should fail to create a meal with invalid recipes', async () => {
             await expect(() =>
-                db.meals.createMeal(carol, "Carol's first meal", [1234, 14534]),
+                db.meals.createMeal({
+                    ownerId: carol,
+                    name: "Carol's first meal",
+                    recipeIds: [1234, 14534],
+                }),
             ).rejects.toThrow();
         });
 
         it('should create a meal with a new recipe', async () => {
-            const fooInstructions = [
+            const instructions = ['Just stand around'];
+            const fooIngredients = [
                 {
-                    durationSec: 1,
-                    kind: 'wait',
-                    text: 'Just stand around',
-                    ingredientAmounts: [
-                        {
-                            amount: 2,
-                            ingredient: {
-                                name: 'Air',
-                            },
-                            unit: 'gallon',
-                        },
-                    ],
+                    amount: 2,
+                    ingredient: {
+                        name: 'Air',
+                        dietaryRestrictions: [],
+                    },
+                    unit: $Enums.Unit.gallon,
                 },
-            ] satisfies CreateInstruction[];
+            ];
 
             const foo = await db.recipes.createRecipe({
-                ownerEmail: carol,
+                ownerId: carol,
                 name: 'Foo',
-                instructions: fooInstructions,
+                instructions: instructions,
+                cookTimeSec: 10,
+                prepTimeSec: 10,
+                ingredientAmounts: fooIngredients,
+                numServings: 1,
             });
-
-            const barInstructions = [
-                {
-                    durationSec: 2,
-                    kind: 'wait',
-                    text: 'Just stand around',
-                    ingredientAmounts: [],
-                },
-            ] satisfies CreateInstruction[];
 
             const bar = await db.recipes.createRecipe({
-                ownerEmail: carol,
+                ownerId: carol,
                 name: 'Bar',
-                instructions: barInstructions,
+                instructions: instructions,
+                cookTimeSec: 10,
+                prepTimeSec: 10,
+                ingredientAmounts: [],
+                numServings: 0,
             });
 
-            await db.meals.createMeal(carol, 'Foobar', [foo.id, bar.id]);
+            await db.meals.createMeal({
+                ownerId: carol,
+                name: 'Foobar',
+                recipeIds: [foo.id, bar.id],
+            });
 
             await expect(db.meals.getAllMeals()).resolves.toEqual([
                 {
@@ -196,35 +197,46 @@ describe('sbdb', () => {
                         {
                             id: foo.id,
                             name: 'Foo',
-                            instructions: fooInstructions,
+                            instructions,
+                            cookTimeSec: 10,
+                            prepTimeSec: 10,
+                            ingredientAmounts: fooIngredients,
+                            numServings: 1,
                         },
                         {
                             id: bar.id,
                             name: 'Bar',
-                            instructions: barInstructions,
+                            instructions,
+                            cookTimeSec: 10,
+                            ingredientAmounts: [],
+                            numServings: 0,
+                            prepTimeSec: 10,
                         },
-                    ],
+                    ] satisfies Awaited<
+                        ReturnType<typeof db.recipes.getRecipe>
+                    >[],
                 },
             ]);
         });
 
         it('should create a rotation with a new meal and recipe', async () => {
-            const bazInstructions = [
-                {
-                    durationSec: 1,
-                    ingredientAmounts: [],
-                    kind: 'dally',
-                    text: 'Just dally about',
-                },
-            ];
+            const bazInstructions = ['Just dally about'];
 
             const baz = await db.recipes.createRecipe({
-                ownerEmail: carol,
+                ownerId: carol,
                 name: 'Baz',
                 instructions: bazInstructions,
+                cookTimeSec: 1,
+                prepTimeSec: 1,
+                ingredientAmounts: [],
+                numServings: 0,
             });
 
-            const meal = await db.meals.createMeal(carol, 'BazMeal', [baz.id]);
+            const meal = await db.meals.createMeal({
+                ownerId: carol,
+                name: 'BazMeal',
+                recipeIds: [baz.id],
+            });
 
             const rotationFreqs = [
                 {
@@ -245,12 +257,13 @@ describe('sbdb', () => {
                 },
             ] satisfies CreateFrequency[];
 
-            const rotation = await db.rotations.createRotation(
-                carol,
-                "Carol's first rotation",
-                [meal.id],
-                rotationFreqs,
-            );
+            const rotation = await db.rotations.createRotation({
+                ownerId: carol,
+                name: "Carol's first rotation",
+                mealIds: [meal.id],
+                frequencies: rotationFreqs,
+                servingsPerMeal: 1,
+            });
 
             await expect(
                 db.rotations.getRotation(rotation.id),
@@ -265,8 +278,14 @@ describe('sbdb', () => {
                                 id: baz.id,
                                 name: 'Baz',
                                 instructions: bazInstructions,
+                                cookTimeSec: 1,
+                                prepTimeSec: 1,
+                                ingredientAmounts: [],
+                                numServings: 0,
                             },
-                        ],
+                        ] satisfies Awaited<
+                            ReturnType<typeof db.recipes.getRecipe>
+                        >[],
                     },
                 ],
             });

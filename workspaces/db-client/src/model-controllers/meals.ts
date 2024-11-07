@@ -11,13 +11,21 @@ export class Meals extends ModelController {
         });
     }
 
-    createMeal(ownerEmail: string, name: string, recipeIds: number[]) {
+    createMeal({
+        ownerId,
+        name,
+        recipeIds,
+    }: {
+        ownerId: string;
+        name: string;
+        recipeIds: number[];
+    }) {
         return this.prisma.meal.create({
             data: {
                 name,
                 owner: {
                     connect: {
-                        email: ownerEmail,
+                        id: ownerId,
                     },
                 },
                 recipes: {
@@ -25,9 +33,21 @@ export class Meals extends ModelController {
                 },
                 userDatas: {
                     connect: {
-                        userEmail: ownerEmail,
+                        userId: ownerId,
                     },
                 },
+            },
+        });
+    }
+
+    getMeal(mealId: number) {
+        return this.prisma.meal.findUnique({
+            where: {
+                id: mealId,
+            },
+            select: {
+                name: true,
+                recipes: { select: SelectRecipe },
             },
         });
     }

@@ -9,7 +9,7 @@
     "test": "vitest --run",
     "build:prisma": "npx -w @sagebook/db-client prisma generate",
     "build:tsoa": "npx -w @sagebook/service tsoa spec-and-routes",
-    "build": "npm run build:prisma && npm run build:tsoa && tsc --build",
+    "build": "npm run build:prisma && tsc --build && npm run build:tsoa",
     "watch:prisma": "npx -w @sagebook/db-client prisma generate --watch",
     "watch": "concurrently 'tsc --build --watch' 'npm run watch:prisma'",
     "lint": "eslint **/src/**/*.ts",

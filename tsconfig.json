@@ -35,10 +35,10 @@
     "include": [],
     "references": [
         {
-            "path": "./workspaces/service"
+            "path": "./workspaces/db-client"
         },
         {
-            "path": "./workspaces/db-client"
+            "path": "./workspaces/service"
         }
     ]
 }

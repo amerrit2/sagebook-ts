@@ -48,18 +48,26 @@ export class Rotations extends ModelController {
         });
     }
 
-    createRotation(
-        ownerEmail: string,
-        name: string,
-        mealIds: number[],
-        frequencies: CreateFrequency[],
-    ) {
+    createRotation({
+        ownerId,
+        name,
+        mealIds,
+        frequencies,
+        servingsPerMeal,
+    }: {
+        ownerId: string;
+        name: string;
+        mealIds: number[];
+        frequencies: CreateFrequency[];
+        servingsPerMeal: number;
+    }) {
         return this.prisma.rotation.create({
             data: {
                 name,
+                servingsPerMeal,
                 owner: {
                     connect: {
-                        email: ownerEmail,
+                        id: ownerId,
                     },
                 },
                 frequencies: {
@@ -75,7 +83,7 @@ export class Rotations extends ModelController {
                 },
                 userData: {
                     connect: {
-                        userEmail: ownerEmail,
+                        userId: ownerId,
                     },
                 },
             },

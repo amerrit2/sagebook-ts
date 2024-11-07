@@ -10,6 +10,8 @@ import { RotationsController } from './../route-controllers/rotations.controller
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { RecipeController } from './../route-controllers/recipe.controller.js';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { MealController } from './../route-controllers/meals.controller.js';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { LoginController } from './../route-controllers/login.controller.js';
 import { expressAuthentication } from './../authentication.js';
 // @ts-ignore - no great way to install types from subpackage
@@ -21,39 +23,34 @@ const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "_36_Enums.ActionKind": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["cook"]},{"dataType":"enum","enums":["eatLeftovers"]},{"dataType":"enum","enums":["eatOut"]},{"dataType":"enum","enums":["orderIn"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "_36_Enums.Unit": {
         "dataType": "refAlias",
         "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tsp"]},{"dataType":"enum","enums":["tbsp"]},{"dataType":"enum","enums":["cup"]},{"dataType":"enum","enums":["pint"]},{"dataType":"enum","enums":["quart"]},{"dataType":"enum","enums":["gallon"]},{"dataType":"enum","enums":["floz"]},{"dataType":"enum","enums":["oz"]},{"dataType":"enum","enums":["ml"]},{"dataType":"enum","enums":["l"]},{"dataType":"enum","enums":["unit"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "_36_Enums.ActionKind": {
+    "_36_Enums.DietaryRestrictions": {
         "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["shop"]},{"dataType":"enum","enums":["cook"]},{"dataType":"enum","enums":["eatLeftovers"]},{"dataType":"enum","enums":["eatOut"]},{"dataType":"enum","enums":["orderIn"]}],"validators":{}},
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["gluten"]},{"dataType":"enum","enums":["nuts"]},{"dataType":"enum","enums":["dairy"]},{"dataType":"enum","enums":["keto"]},{"dataType":"enum","enums":["paleo"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_Instruction.Exclude_keyofInstruction.recipeId-or-id__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"text":{"dataType":"string","required":true},"durationSec":{"dataType":"double","required":true},"kind":{"dataType":"string","required":true}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Omit_Instruction.recipeId-or-id_": {
-        "dataType": "refAlias",
-        "type": {"ref":"Pick_Instruction.Exclude_keyofInstruction.recipeId-or-id__","validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName__": {
+    "Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId__": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"unit":{"ref":"_36_Enums.Unit","required":true},"amount":{"dataType":"double","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Omit_IngredientAmount.id-or-instructionId-or-ingredientName_": {
+    "Omit_IngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId_": {
         "dataType": "refAlias",
-        "type": {"ref":"Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName__","validators":{}},
+        "type": {"ref":"Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId__","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "DefaultSelection_Prisma._36_IngredientPayload_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"dietaryRestrictions":{"dataType":"array","array":{"dataType":"refAlias","ref":"_36_Enums.DietaryRestrictions"},"required":true},"name":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Ingredient": {
@@ -63,17 +60,12 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CreateIngredientAmount": {
         "dataType": "refAlias",
-        "type": {"dataType":"intersection","subSchemas":[{"ref":"Omit_IngredientAmount.id-or-instructionId-or-ingredientName_"},{"dataType":"nestedObjectLiteral","nestedProperties":{"ingredient":{"ref":"Ingredient","required":true}}}],"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "CreateInstruction": {
-        "dataType": "refAlias",
-        "type": {"dataType":"intersection","subSchemas":[{"ref":"Omit_Instruction.recipeId-or-id_"},{"dataType":"nestedObjectLiteral","nestedProperties":{"ingredientAmounts":{"dataType":"array","array":{"dataType":"refAlias","ref":"CreateIngredientAmount"},"required":true}}}],"validators":{}},
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"Omit_IngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId_"},{"dataType":"nestedObjectLiteral","nestedProperties":{"ingredient":{"ref":"Ingredient","required":true}}}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"instructions":{"dataType":"array","array":{"dataType":"refAlias","ref":"CreateInstruction"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"ownerId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"instructions":{"dataType":"array","array":{"dataType":"string"},"required":true},"numServings":{"dataType":"double","required":true},"ingredientAmounts":{"dataType":"array","array":{"dataType":"refAlias","ref":"CreateIngredientAmount"},"required":true},"prepTimeSec":{"dataType":"double","required":true},"cookTimeSec":{"dataType":"double","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Omit_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail_": {
@@ -84,6 +76,21 @@ const models: TsoaRoute.Models = {
     "CreateRecipeParams": {
         "dataType": "refAlias",
         "type": {"ref":"Omit_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail_","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail__": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"ownerId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"recipeIds":{"dataType":"array","array":{"dataType":"double"},"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Omit_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail_": {
+        "dataType": "refAlias",
+        "type": {"ref":"Pick_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail__","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateMealParams": {
+        "dataType": "refAlias",
+        "type": {"ref":"Omit_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail_","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "LoginBody": {
@@ -236,11 +243,40 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/recipes/:recipeId',
+        app.get('/recipes',
             ...(fetchMiddlewares<RequestHandler>(RecipeController)),
             ...(fetchMiddlewares<RequestHandler>(RecipeController.prototype.getAllRecipes)),
 
             async function RecipeController_getAllRecipes(request: ExRequest, response: ExResponse, next: any) {
+            const args: Record<string, TsoaRoute.ParameterSchema> = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args, request, response });
+
+                const controller = new RecipeController();
+
+              await templateService.apiHandler({
+                methodName: 'getAllRecipes',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/recipes/:recipeId',
+            ...(fetchMiddlewares<RequestHandler>(RecipeController)),
+            ...(fetchMiddlewares<RequestHandler>(RecipeController.prototype.getRecipe)),
+
+            async function RecipeController_getRecipe(request: ExRequest, response: ExResponse, next: any) {
             const args: Record<string, TsoaRoute.ParameterSchema> = {
                     recipeId: {"in":"path","name":"recipeId","required":true,"dataType":"double"},
             };
@@ -254,7 +290,98 @@ export function RegisterRoutes(app: Router) {
                 const controller = new RecipeController();
 
               await templateService.apiHandler({
-                methodName: 'getAllRecipes',
+                methodName: 'getRecipe',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/meals',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(MealController)),
+            ...(fetchMiddlewares<RequestHandler>(MealController.prototype.createMeal)),
+
+            async function MealController_createMeal(request: ExRequest, response: ExResponse, next: any) {
+            const args: Record<string, TsoaRoute.ParameterSchema> = {
+                    request: {"in":"request","name":"request","required":true,"dataType":"object"},
+                    input: {"in":"body","name":"input","required":true,"ref":"CreateMealParams"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args, request, response });
+
+                const controller = new MealController();
+
+              await templateService.apiHandler({
+                methodName: 'createMeal',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/meals',
+            ...(fetchMiddlewares<RequestHandler>(MealController)),
+            ...(fetchMiddlewares<RequestHandler>(MealController.prototype.getAllMeals)),
+
+            async function MealController_getAllMeals(request: ExRequest, response: ExResponse, next: any) {
+            const args: Record<string, TsoaRoute.ParameterSchema> = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args, request, response });
+
+                const controller = new MealController();
+
+              await templateService.apiHandler({
+                methodName: 'getAllMeals',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/meals/:mealId',
+            ...(fetchMiddlewares<RequestHandler>(MealController)),
+            ...(fetchMiddlewares<RequestHandler>(MealController.prototype.getMeal)),
+
+            async function MealController_getMeal(request: ExRequest, response: ExResponse, next: any) {
+            const args: Record<string, TsoaRoute.ParameterSchema> = {
+                    mealId: {"in":"path","name":"mealId","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args, request, response });
+
+                const controller = new MealController();
+
+              await templateService.apiHandler({
+                methodName: 'getMeal',
                 controller,
                 response,
                 next,

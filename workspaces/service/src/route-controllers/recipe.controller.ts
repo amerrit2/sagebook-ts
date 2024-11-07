@@ -29,7 +29,7 @@ export class RecipeController extends Controller {
 
         return db.recipes.createRecipe({
             ...input,
-            ownerEmail: request.user.email,
+            ownerId: request.user.email,
         });
     }
 

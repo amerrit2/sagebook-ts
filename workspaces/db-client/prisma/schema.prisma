@@ -27,61 +27,62 @@ enum Unit {
   unit
 }
 
+enum DietaryRestrictions {
+  gluten
+  nuts
+  dairy
+  keto
+  paleo
+}
+
+// ----------> SIMPLIFY RECIPES, MATCH BASIC DATA FROM ALL-RECIPES
+
 // Global - Belongs to many IngredientAmount instances.
 model Ingredient {
-  name String @id
+  name                String                @id
+  dietaryRestrictions DietaryRestrictions[]
 
+  // Belongs to
   IngredientAmount IngredientAmount[]
 }
 
 model IngredientAmount {
-  id             Int    @id @default(autoincrement())
+  id     Int  @id @default(autoincrement())
+  amount Int  @db.SmallInt
+  unit   Unit
+
+  // Contains
   ingredientName String
-  amount         Int    @db.SmallInt
-  unit           Unit
-  instructionId  Int
-
-  // Contains
-  ingredient Ingredient @relation(fields: [ingredientName], references: [name])
+  ingredient     Ingredient @relation(fields: [ingredientName], references: [name])
 
   // Owned by
-  instruction Instruction @relation(fields: [instructionId], references: [id])
-}
-
-model Instruction {
-  id          Int    @id @default(autoincrement())
-  text        String @db.Text
-  durationSec Int    @db.Integer
-  kind        String @db.VarChar(40)
-  recipeId    Int
-
-  // Contains
-  ingredientAmounts IngredientAmount[]
-
-  // Owned by
-  recipe Recipe @relation(fields: [recipeId], references: [id])
+  recipeId Int
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
 }
 
 model Recipe {
-  id         Int    @id @default(autoincrement())
-  name       String
-  ownerEmail String @db.VarChar(230)
+  id           Int      @id @default(autoincrement())
+  name         String
+  numServings  Int      @db.SmallInt
+  instructions String[]
+  prepTimeSec  Int
+  cookTimeSec  Int
 
   // Contains
-  instructions Instruction[]
+  ingredientAmounts IngredientAmount[]
 
   // Belongs to
   meals     Meal[]
   userDatas UserData[]
 
   // Owned by
-  owner User @relation(fields: [ownerEmail], references: [email])
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [email])
 }
 
 model Meal {
-  id         Int    @id @default(autoincrement())
-  name       String
-  ownerEmail String @db.VarChar(230)
+  id   Int    @id @default(autoincrement())
+  name String
 
   // Contains
   recipes Recipe[]
@@ -91,11 +92,11 @@ model Meal {
   userDatas UserData[]
 
   // Owned by
-  owner User @relation(fields: [ownerEmail], references: [email])
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [email])
 }
 
 enum ActionKind {
-  shop
   cook
   eatLeftovers
   eatOut
@@ -103,19 +104,19 @@ enum ActionKind {
 }
 
 model Frequency {
-  id         Int        @id @default(autoincrement())
-  kind       ActionKind
-  value      Int // Ratio value
-  rotationId Int
+  id    Int        @id @default(autoincrement())
+  kind  ActionKind
+  value Int // Ratio value
 
   // Owned by
-  rotation Rotation @relation(fields: [rotationId], references: [id])
+  rotationId Int
+  rotation   Rotation @relation(fields: [rotationId], references: [id])
 }
 
 model Rotation {
-  id         Int    @id @default(autoincrement())
-  name       String
-  ownerEmail String @db.VarChar(230)
+  id              Int    @id @default(autoincrement())
+  name            String
+  servingsPerMeal Int
 
   // Contains
   meals       Meal[]
@@ -125,29 +126,30 @@ model Rotation {
   userData UserData[]
 
   // Owned by
-  owner User @relation(fields: [ownerEmail], references: [email])
+  ownerId String @db.VarChar(230)
+  owner   User   @relation(fields: [ownerId], references: [email])
 }
 
 model User {
-  email        String    @id @db.VarChar(230)
+  id           String    @id @default(uuid())
+  email        String    @unique @db.VarChar(230)
   passwordHash Bytes
   passwordSalt Bytes
   data         UserData?
 
-  // Belongs to
+  // Contains
   ownedRecipes   Recipe[]
   ownedMeals     Meal[]
   ownedRotations Rotation[]
 }
 
 model UserData {
-  userEmail String @id @unique @db.VarChar(230)
-
   // Contains
   rotations Rotation[]
   meals     Meal[]
   recipes   Recipe[]
 
   // Owned by
-  user User @relation(fields: [userEmail], references: [email])
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id])
 }

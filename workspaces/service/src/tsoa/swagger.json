@@ -7,6 +7,15 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"_36_Enums.ActionKind": {
+				"type": "string",
+				"enum": [
+					"cook",
+					"eatLeftovers",
+					"eatOut",
+					"orderIn"
+				]
+			},
 			"_36_Enums.Unit": {
 				"type": "string",
 				"enum": [
@@ -23,42 +32,17 @@
 					"unit"
 				]
 			},
-			"_36_Enums.ActionKind": {
+			"_36_Enums.DietaryRestrictions": {
 				"type": "string",
 				"enum": [
-					"shop",
-					"cook",
-					"eatLeftovers",
-					"eatOut",
-					"orderIn"
+					"gluten",
+					"nuts",
+					"dairy",
+					"keto",
+					"paleo"
 				]
 			},
-			"Pick_Instruction.Exclude_keyofInstruction.recipeId-or-id__": {
-				"properties": {
-					"text": {
-						"type": "string"
-					},
-					"durationSec": {
-						"type": "number",
-						"format": "double"
-					},
-					"kind": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"text",
-					"durationSec",
-					"kind"
-				],
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
-			"Omit_Instruction.recipeId-or-id_": {
-				"$ref": "#/components/schemas/Pick_Instruction.Exclude_keyofInstruction.recipeId-or-id__",
-				"description": "Construct a type with the properties of T except for those in type K."
-			},
-			"Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName__": {
+			"Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId__": {
 				"properties": {
 					"unit": {
 						"$ref": "#/components/schemas/_36_Enums.Unit"
@@ -75,17 +59,24 @@
 				"type": "object",
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
-			"Omit_IngredientAmount.id-or-instructionId-or-ingredientName_": {
-				"$ref": "#/components/schemas/Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName__",
+			"Omit_IngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId_": {
+				"$ref": "#/components/schemas/Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId__",
 				"description": "Construct a type with the properties of T except for those in type K."
 			},
 			"DefaultSelection_Prisma._36_IngredientPayload_": {
 				"properties": {
+					"dietaryRestrictions": {
+						"items": {
+							"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
+						},
+						"type": "array"
+					},
 					"name": {
 						"type": "string"
 					}
 				},
 				"required": [
+					"dietaryRestrictions",
 					"name"
 				],
 				"type": "object"
@@ -97,7 +88,7 @@
 			"CreateIngredientAmount": {
 				"allOf": [
 					{
-						"$ref": "#/components/schemas/Omit_IngredientAmount.id-or-instructionId-or-ingredientName_"
+						"$ref": "#/components/schemas/Omit_IngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId_"
 					},
 					{
 						"properties": {
@@ -112,42 +103,47 @@
 					}
 				]
 			},
-			"CreateInstruction": {
-				"allOf": [
-					{
-						"$ref": "#/components/schemas/Omit_Instruction.recipeId-or-id_"
-					},
-					{
-						"properties": {
-							"ingredientAmounts": {
-								"items": {
-									"$ref": "#/components/schemas/CreateIngredientAmount"
-								},
-								"type": "array"
-							}
-						},
-						"required": [
-							"ingredientAmounts"
-						],
-						"type": "object"
-					}
-				]
-			},
 			"Pick_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail__": {
 				"properties": {
+					"ownerId": {
+						"type": "string"
+					},
 					"name": {
 						"type": "string"
 					},
 					"instructions": {
 						"items": {
-							"$ref": "#/components/schemas/CreateInstruction"
+							"type": "string"
 						},
 						"type": "array"
+					},
+					"numServings": {
+						"type": "number",
+						"format": "double"
+					},
+					"ingredientAmounts": {
+						"items": {
+							"$ref": "#/components/schemas/CreateIngredientAmount"
+						},
+						"type": "array"
+					},
+					"prepTimeSec": {
+						"type": "number",
+						"format": "double"
+					},
+					"cookTimeSec": {
+						"type": "number",
+						"format": "double"
 					}
 				},
 				"required": [
+					"ownerId",
 					"name",
-					"instructions"
+					"instructions",
+					"numServings",
+					"ingredientAmounts",
+					"prepTimeSec",
+					"cookTimeSec"
 				],
 				"type": "object",
 				"description": "From T, pick a set of properties whose keys are in the union K"
@@ -158,6 +154,37 @@
 			},
 			"CreateRecipeParams": {
 				"$ref": "#/components/schemas/Omit_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail_"
+			},
+			"Pick_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail__": {
+				"properties": {
+					"ownerId": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"recipeIds": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"ownerId",
+					"name",
+					"recipeIds"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail_": {
+				"$ref": "#/components/schemas/Pick_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"CreateMealParams": {
+				"$ref": "#/components/schemas/Omit_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail_"
 			},
 			"LoginBody": {
 				"properties": {
@@ -210,31 +237,64 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"meals": {
+										"recipes": {
 											"items": {
 												"properties": {
-													"recipes": {
+													"ingredientAmounts": {
 														"items": {
 															"properties": {
-																"ownerEmail": {
-																	"type": "string"
+																"ingredient": {
+																	"properties": {
+																		"dietaryRestrictions": {
+																			"items": {
+																				"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
+																			},
+																			"type": "array"
+																		},
+																		"name": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"dietaryRestrictions",
+																		"name"
+																	],
+																	"type": "object"
 																},
-																"name": {
-																	"type": "string"
+																"unit": {
+																	"$ref": "#/components/schemas/_36_Enums.Unit"
 																},
-																"id": {
+																"amount": {
 																	"type": "number",
 																	"format": "double"
 																}
 															},
 															"required": [
-																"ownerEmail",
-																"name",
-																"id"
+																"ingredient",
+																"unit",
+																"amount"
 															],
 															"type": "object"
 														},
 														"type": "array"
+													},
+													"cookTimeSec": {
+														"type": "number",
+														"format": "double"
+													},
+													"prepTimeSec": {
+														"type": "number",
+														"format": "double"
+													},
+													"instructions": {
+														"items": {
+															"type": "string"
+														},
+														"type": "array"
+													},
+													"numServings": {
+														"type": "number",
+														"format": "double"
 													},
 													"name": {
 														"type": "string"
@@ -245,9 +305,113 @@
 													}
 												},
 												"required": [
-													"recipes",
+													"ingredientAmounts",
+													"cookTimeSec",
+													"prepTimeSec",
+													"instructions",
+													"numServings",
 													"name",
 													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"meals": {
+											"items": {
+												"properties": {
+													"name": {
+														"type": "string"
+													},
+													"id": {
+														"type": "number",
+														"format": "double"
+													},
+													"recipes": {
+														"items": {
+															"properties": {
+																"ingredientAmounts": {
+																	"items": {
+																		"properties": {
+																			"ingredient": {
+																				"properties": {
+																					"dietaryRestrictions": {
+																						"items": {
+																							"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
+																						},
+																						"type": "array"
+																					},
+																					"name": {
+																						"type": "string"
+																					}
+																				},
+																				"required": [
+																					"dietaryRestrictions",
+																					"name"
+																				],
+																				"type": "object"
+																			},
+																			"unit": {
+																				"$ref": "#/components/schemas/_36_Enums.Unit"
+																			},
+																			"amount": {
+																				"type": "number",
+																				"format": "double"
+																			}
+																		},
+																		"required": [
+																			"ingredient",
+																			"unit",
+																			"amount"
+																		],
+																		"type": "object"
+																	},
+																	"type": "array"
+																},
+																"cookTimeSec": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"prepTimeSec": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"instructions": {
+																	"items": {
+																		"type": "string"
+																	},
+																	"type": "array"
+																},
+																"numServings": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"id": {
+																	"type": "number",
+																	"format": "double"
+																}
+															},
+															"required": [
+																"ingredientAmounts",
+																"cookTimeSec",
+																"prepTimeSec",
+																"instructions",
+																"numServings",
+																"name",
+																"id"
+															],
+															"type": "object"
+														},
+														"type": "array"
+													}
+												},
+												"required": [
+													"name",
+													"id",
+													"recipes"
 												],
 												"type": "object"
 											},
@@ -285,10 +449,17 @@
 														},
 														"type": "array"
 													},
+													"name": {
+														"type": "string"
+													},
+													"id": {
+														"type": "number",
+														"format": "double"
+													},
 													"meals": {
 														"items": {
 															"properties": {
-																"ownerEmail": {
+																"ownerId": {
 																	"type": "string"
 																},
 																"name": {
@@ -300,102 +471,20 @@
 																}
 															},
 															"required": [
-																"ownerEmail",
+																"ownerId",
 																"name",
 																"id"
 															],
 															"type": "object"
 														},
 														"type": "array"
-													},
-													"name": {
-														"type": "string"
-													},
-													"id": {
-														"type": "number",
-														"format": "double"
 													}
 												},
 												"required": [
 													"frequencies",
-													"meals",
 													"name",
-													"id"
-												],
-												"type": "object"
-											},
-											"type": "array"
-										},
-										"recipes": {
-											"items": {
-												"properties": {
-													"instructions": {
-														"items": {
-															"properties": {
-																"ingredientAmounts": {
-																	"items": {
-																		"properties": {
-																			"ingredient": {
-																				"properties": {
-																					"name": {
-																						"type": "string"
-																					}
-																				},
-																				"required": [
-																					"name"
-																				],
-																				"type": "object"
-																			},
-																			"unit": {
-																				"$ref": "#/components/schemas/_36_Enums.Unit"
-																			},
-																			"amount": {
-																				"type": "number",
-																				"format": "double"
-																			}
-																		},
-																		"required": [
-																			"ingredient",
-																			"unit",
-																			"amount"
-																		],
-																		"type": "object"
-																	},
-																	"type": "array"
-																},
-																"kind": {
-																	"type": "string"
-																},
-																"durationSec": {
-																	"type": "number",
-																	"format": "double"
-																},
-																"text": {
-																	"type": "string"
-																}
-															},
-															"required": [
-																"ingredientAmounts",
-																"kind",
-																"durationSec",
-																"text"
-															],
-															"type": "object"
-														},
-														"type": "array"
-													},
-													"name": {
-														"type": "string"
-													},
-													"id": {
-														"type": "number",
-														"format": "double"
-													}
-												},
-												"required": [
-													"instructions",
-													"name",
-													"id"
+													"id",
+													"meals"
 												],
 												"type": "object"
 											},
@@ -403,9 +492,9 @@
 										}
 									},
 									"required": [
+										"recipes",
 										"meals",
-										"rotations",
-										"recipes"
+										"rotations"
 									],
 									"type": "object"
 								}
@@ -499,60 +588,61 @@
 													"recipes": {
 														"items": {
 															"properties": {
-																"instructions": {
+																"ingredientAmounts": {
 																	"items": {
 																		"properties": {
-																			"ingredientAmounts": {
-																				"items": {
-																					"properties": {
-																						"ingredient": {
-																							"properties": {
-																								"name": {
-																									"type": "string"
-																								}
-																							},
-																							"required": [
-																								"name"
-																							],
-																							"type": "object"
+																			"ingredient": {
+																				"properties": {
+																					"dietaryRestrictions": {
+																						"items": {
+																							"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
 																						},
-																						"unit": {
-																							"$ref": "#/components/schemas/_36_Enums.Unit"
-																						},
-																						"amount": {
-																							"type": "number",
-																							"format": "double"
-																						}
+																						"type": "array"
 																					},
-																					"required": [
-																						"ingredient",
-																						"unit",
-																						"amount"
-																					],
-																					"type": "object"
+																					"name": {
+																						"type": "string"
+																					}
 																				},
-																				"type": "array"
+																				"required": [
+																					"dietaryRestrictions",
+																					"name"
+																				],
+																				"type": "object"
 																			},
-																			"kind": {
-																				"type": "string"
+																			"unit": {
+																				"$ref": "#/components/schemas/_36_Enums.Unit"
 																			},
-																			"durationSec": {
+																			"amount": {
 																				"type": "number",
 																				"format": "double"
-																			},
-																			"text": {
-																				"type": "string"
 																			}
 																		},
 																		"required": [
-																			"ingredientAmounts",
-																			"kind",
-																			"durationSec",
-																			"text"
+																			"ingredient",
+																			"unit",
+																			"amount"
 																		],
 																		"type": "object"
 																	},
 																	"type": "array"
+																},
+																"cookTimeSec": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"prepTimeSec": {
+																	"type": "number",
+																	"format": "double"
+																},
+																"instructions": {
+																	"items": {
+																		"type": "string"
+																	},
+																	"type": "array"
+																},
+																"numServings": {
+																	"type": "number",
+																	"format": "double"
 																},
 																"name": {
 																	"type": "string"
@@ -563,7 +653,11 @@
 																}
 															},
 															"required": [
+																"ingredientAmounts",
+																"cookTimeSec",
+																"prepTimeSec",
 																"instructions",
+																"numServings",
 																"name",
 																"id"
 															],
@@ -626,60 +720,61 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"instructions": {
+										"ingredientAmounts": {
 											"items": {
 												"properties": {
-													"ingredientAmounts": {
-														"items": {
-															"properties": {
-																"ingredient": {
-																	"properties": {
-																		"name": {
-																			"type": "string"
-																		}
-																	},
-																	"required": [
-																		"name"
-																	],
-																	"type": "object"
+													"ingredient": {
+														"properties": {
+															"dietaryRestrictions": {
+																"items": {
+																	"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
 																},
-																"unit": {
-																	"$ref": "#/components/schemas/_36_Enums.Unit"
-																},
-																"amount": {
-																	"type": "number",
-																	"format": "double"
-																}
+																"type": "array"
 															},
-															"required": [
-																"ingredient",
-																"unit",
-																"amount"
-															],
-															"type": "object"
+															"name": {
+																"type": "string"
+															}
 														},
-														"type": "array"
+														"required": [
+															"dietaryRestrictions",
+															"name"
+														],
+														"type": "object"
 													},
-													"kind": {
-														"type": "string"
+													"unit": {
+														"$ref": "#/components/schemas/_36_Enums.Unit"
 													},
-													"durationSec": {
+													"amount": {
 														"type": "number",
 														"format": "double"
-													},
-													"text": {
-														"type": "string"
 													}
 												},
 												"required": [
-													"ingredientAmounts",
-													"kind",
-													"durationSec",
-													"text"
+													"ingredient",
+													"unit",
+													"amount"
 												],
 												"type": "object"
 											},
 											"type": "array"
+										},
+										"cookTimeSec": {
+											"type": "number",
+											"format": "double"
+										},
+										"prepTimeSec": {
+											"type": "number",
+											"format": "double"
+										},
+										"instructions": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"numServings": {
+											"type": "number",
+											"format": "double"
 										},
 										"name": {
 											"type": "string"
@@ -690,7 +785,11 @@
 										}
 									},
 									"required": [
+										"ingredientAmounts",
+										"cookTimeSec",
+										"prepTimeSec",
 										"instructions",
+										"numServings",
 										"name",
 										"id"
 									],
@@ -716,9 +815,7 @@
 						}
 					}
 				}
-			}
-		},
-		"/recipes/{recipeId}": {
+			},
 			"get": {
 				"operationId": "GetAllRecipes",
 				"responses": {
@@ -727,216 +824,177 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"anyOf": [
-										{
-											"properties": {
-												"instructions": {
-													"items": {
-														"properties": {
-															"ingredientAmounts": {
-																"items": {
-																	"properties": {
-																		"ingredient": {
-																			"properties": {
-																				"name": {
-																					"type": "string"
-																				}
-																			},
-																			"required": [
-																				"name"
-																			],
-																			"type": "object"
-																		},
-																		"unit": {
-																			"$ref": "#/components/schemas/_36_Enums.Unit"
-																		},
-																		"amount": {
-																			"type": "number",
-																			"format": "double"
-																		}
+									"items": {
+										"properties": {
+											"ingredientAmounts": {
+												"items": {
+													"properties": {
+														"ingredient": {
+															"properties": {
+																"dietaryRestrictions": {
+																	"items": {
+																		"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
 																	},
-																	"required": [
-																		"ingredient",
-																		"unit",
-																		"amount"
-																	],
-																	"type": "object"
+																	"type": "array"
 																},
-																"type": "array"
+																"name": {
+																	"type": "string"
+																}
 															},
-															"kind": {
-																"type": "string"
-															},
-															"durationSec": {
-																"type": "number",
-																"format": "double"
-															},
-															"text": {
-																"type": "string"
-															}
+															"required": [
+																"dietaryRestrictions",
+																"name"
+															],
+															"type": "object"
 														},
-														"required": [
-															"ingredientAmounts",
-															"kind",
-															"durationSec",
-															"text"
-														],
-														"type": "object"
+														"unit": {
+															"$ref": "#/components/schemas/_36_Enums.Unit"
+														},
+														"amount": {
+															"type": "number",
+															"format": "double"
+														}
 													},
-													"type": "array"
+													"required": [
+														"ingredient",
+														"unit",
+														"amount"
+													],
+													"type": "object"
 												},
-												"name": {
+												"type": "array"
+											},
+											"cookTimeSec": {
+												"type": "number",
+												"format": "double"
+											},
+											"prepTimeSec": {
+												"type": "number",
+												"format": "double"
+											},
+											"instructions": {
+												"items": {
 													"type": "string"
 												},
-												"id": {
-													"type": "number",
-													"format": "double"
-												}
+												"type": "array"
 											},
-											"required": [
-												"instructions",
-												"name",
-												"id"
-											],
-											"type": "object"
+											"numServings": {
+												"type": "number",
+												"format": "double"
+											},
+											"name": {
+												"type": "string"
+											},
+											"id": {
+												"type": "number",
+												"format": "double"
+											}
 										},
-										{
+										"required": [
+											"ingredientAmounts",
+											"cookTimeSec",
+											"prepTimeSec",
+											"instructions",
+											"numServings",
+											"name",
+											"id"
+										],
+										"type": "object"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/recipes/{recipeId}": {
+			"get": {
+				"operationId": "GetRecipe",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"ingredientAmounts": {
 											"items": {
-												"allOf": [
-													{
+												"properties": {
+													"ingredient": {
 														"properties": {
-															"instructions": {
+															"dietaryRestrictions": {
 																"items": {
-																	"allOf": [
-																		{
-																			"properties": {
-																				"ingredientAmounts": {
-																					"items": {
-																						"allOf": [
-																							{
-																								"properties": {
-																									"ingredient": {
-																										"properties": {
-																											"name": {
-																												"type": "string"
-																											}
-																										},
-																										"required": [
-																											"name"
-																										],
-																										"type": "object"
-																									}
-																								},
-																								"required": [
-																									"ingredient"
-																								],
-																								"type": "object"
-																							},
-																							{
-																								"properties": {
-																									"instructionId": {
-																										"type": "number",
-																										"format": "double"
-																									},
-																									"unit": {
-																										"$ref": "#/components/schemas/_36_Enums.Unit"
-																									},
-																									"amount": {
-																										"type": "number",
-																										"format": "double"
-																									},
-																									"ingredientName": {
-																										"type": "string"
-																									},
-																									"id": {
-																										"type": "number",
-																										"format": "double"
-																									}
-																								},
-																								"required": [
-																									"instructionId",
-																									"unit",
-																									"amount",
-																									"ingredientName",
-																									"id"
-																								],
-																								"type": "object"
-																							}
-																						]
-																					},
-																					"type": "array"
-																				}
-																			},
-																			"required": [
-																				"ingredientAmounts"
-																			],
-																			"type": "object"
-																		},
-																		{
-																			"properties": {
-																				"recipeId": {
-																					"type": "number",
-																					"format": "double"
-																				},
-																				"kind": {
-																					"type": "string"
-																				},
-																				"durationSec": {
-																					"type": "number",
-																					"format": "double"
-																				},
-																				"text": {
-																					"type": "string"
-																				},
-																				"id": {
-																					"type": "number",
-																					"format": "double"
-																				}
-																			},
-																			"required": [
-																				"recipeId",
-																				"kind",
-																				"durationSec",
-																				"text",
-																				"id"
-																			],
-																			"type": "object"
-																		}
-																	]
+																	"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
 																},
 																"type": "array"
-															}
-														},
-														"required": [
-															"instructions"
-														],
-														"type": "object"
-													},
-													{
-														"properties": {
-															"ownerEmail": {
-																"type": "string"
 															},
 															"name": {
 																"type": "string"
-															},
-															"id": {
-																"type": "number",
-																"format": "double"
 															}
 														},
 														"required": [
-															"ownerEmail",
-															"name",
-															"id"
+															"dietaryRestrictions",
+															"name"
 														],
 														"type": "object"
+													},
+													"unit": {
+														"$ref": "#/components/schemas/_36_Enums.Unit"
+													},
+													"amount": {
+														"type": "number",
+														"format": "double"
 													}
-												]
+												},
+												"required": [
+													"ingredient",
+													"unit",
+													"amount"
+												],
+												"type": "object"
 											},
 											"type": "array"
+										},
+										"cookTimeSec": {
+											"type": "number",
+											"format": "double"
+										},
+										"prepTimeSec": {
+											"type": "number",
+											"format": "double"
+										},
+										"instructions": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"numServings": {
+											"type": "number",
+											"format": "double"
+										},
+										"name": {
+											"type": "string"
+										},
+										"id": {
+											"type": "number",
+											"format": "double"
 										}
-									]
+									},
+									"required": [
+										"ingredientAmounts",
+										"cookTimeSec",
+										"prepTimeSec",
+										"instructions",
+										"numServings",
+										"name",
+										"id"
+									],
+									"type": "object"
 								}
 							}
 						}
@@ -947,6 +1005,283 @@
 					{
 						"in": "path",
 						"name": "recipeId",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/meals": {
+			"post": {
+				"operationId": "CreateMeal",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"ownerId": {
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										},
+										"id": {
+											"type": "number",
+											"format": "double"
+										}
+									},
+									"required": [
+										"ownerId",
+										"name",
+										"id"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateMealParams"
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetAllMeals",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"properties": {
+											"recipes": {
+												"items": {
+													"properties": {
+														"ingredientAmounts": {
+															"items": {
+																"properties": {
+																	"ingredient": {
+																		"properties": {
+																			"dietaryRestrictions": {
+																				"items": {
+																					"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
+																				},
+																				"type": "array"
+																			},
+																			"name": {
+																				"type": "string"
+																			}
+																		},
+																		"required": [
+																			"dietaryRestrictions",
+																			"name"
+																		],
+																		"type": "object"
+																	},
+																	"unit": {
+																		"$ref": "#/components/schemas/_36_Enums.Unit"
+																	},
+																	"amount": {
+																		"type": "number",
+																		"format": "double"
+																	}
+																},
+																"required": [
+																	"ingredient",
+																	"unit",
+																	"amount"
+																],
+																"type": "object"
+															},
+															"type": "array"
+														},
+														"cookTimeSec": {
+															"type": "number",
+															"format": "double"
+														},
+														"prepTimeSec": {
+															"type": "number",
+															"format": "double"
+														},
+														"instructions": {
+															"items": {
+																"type": "string"
+															},
+															"type": "array"
+														},
+														"numServings": {
+															"type": "number",
+															"format": "double"
+														},
+														"name": {
+															"type": "string"
+														},
+														"id": {
+															"type": "number",
+															"format": "double"
+														}
+													},
+													"required": [
+														"ingredientAmounts",
+														"cookTimeSec",
+														"prepTimeSec",
+														"instructions",
+														"numServings",
+														"name",
+														"id"
+													],
+													"type": "object"
+												},
+												"type": "array"
+											},
+											"name": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"recipes",
+											"name"
+										],
+										"type": "object"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/meals/{mealId}": {
+			"get": {
+				"operationId": "GetMeal",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"recipes": {
+											"items": {
+												"properties": {
+													"ingredientAmounts": {
+														"items": {
+															"properties": {
+																"ingredient": {
+																	"properties": {
+																		"dietaryRestrictions": {
+																			"items": {
+																				"$ref": "#/components/schemas/_36_Enums.DietaryRestrictions"
+																			},
+																			"type": "array"
+																		},
+																		"name": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"dietaryRestrictions",
+																		"name"
+																	],
+																	"type": "object"
+																},
+																"unit": {
+																	"$ref": "#/components/schemas/_36_Enums.Unit"
+																},
+																"amount": {
+																	"type": "number",
+																	"format": "double"
+																}
+															},
+															"required": [
+																"ingredient",
+																"unit",
+																"amount"
+															],
+															"type": "object"
+														},
+														"type": "array"
+													},
+													"cookTimeSec": {
+														"type": "number",
+														"format": "double"
+													},
+													"prepTimeSec": {
+														"type": "number",
+														"format": "double"
+													},
+													"instructions": {
+														"items": {
+															"type": "string"
+														},
+														"type": "array"
+													},
+													"numServings": {
+														"type": "number",
+														"format": "double"
+													},
+													"name": {
+														"type": "string"
+													},
+													"id": {
+														"type": "number",
+														"format": "double"
+													}
+												},
+												"required": [
+													"ingredientAmounts",
+													"cookTimeSec",
+													"prepTimeSec",
+													"instructions",
+													"numServings",
+													"name",
+													"id"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"name": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"recipes",
+										"name"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "mealId",
 						"required": true,
 						"schema": {
 							"format": "double",
