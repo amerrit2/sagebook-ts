@@ -20,7 +20,10 @@ export const SelectRecipe = {
     },
     numServings: true,
     instructions: true,
+    ownerId: true,
 } satisfies Parameters<PrismaClient['recipe']['findUnique']>[0]['select'];
+
+export type Recipe = Awaited<ReturnType<Recipes['getRecipe']>>;
 
 export class Recipes extends ModelController {
     getAllRecipes() {
@@ -91,6 +94,29 @@ export class Recipes extends ModelController {
             });
 
             return (await this.getRecipe(recipe.id))!;
+        });
+    }
+
+    deleteRecipe(recipeId: number) {
+        return this.prisma.recipe.delete({
+            where: {
+                id: recipeId,
+            },
+        });
+    }
+
+    saveRecipe({ recipeId, userId }: { recipeId: number; userId: string }) {
+        return this.prisma.userData.update({
+            where: {
+                userId,
+            },
+            data: {
+                recipes: {
+                    connect: {
+                        id: recipeId,
+                    },
+                },
+            },
         });
     }
 }

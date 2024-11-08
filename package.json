@@ -7,6 +7,7 @@
   "scripts": {
     "prepublish": "npm run build",
     "test": "vitest --run",
+    "migrate:prisma": "npx -w @sagebook/db-client prisma migrate dev",
     "build:prisma": "npx -w @sagebook/db-client prisma generate",
     "build:tsoa": "npx -w @sagebook/service tsoa spec-and-routes",
     "build": "npm run build:prisma && tsc --build && npm run build:tsoa",

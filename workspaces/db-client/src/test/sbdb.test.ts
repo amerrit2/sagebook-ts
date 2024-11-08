@@ -4,6 +4,7 @@ import { SagebookDatabase } from '../sbdb.js';
 import { resolve } from 'node:path';
 import { CreateFrequency } from '../model-controllers/rotations.js';
 import { $Enums } from '@prisma/client';
+import { Recipe } from '../model-controllers/recipes.js';
 
 describe('sbdb', () => {
     let dbContainer: ChildProcess | undefined;
@@ -17,8 +18,7 @@ describe('sbdb', () => {
 
         dbContainer.stdout?.pipe(process.stdout);
         dbContainer.stderr?.pipe(process.stderr);
-
-        db = await SagebookDatabase.connect();
+        db = new SagebookDatabase();
 
         await db.prisma.ingredientAmount.deleteMany();
         await db.prisma.ingredient.deleteMany();
@@ -30,37 +30,39 @@ describe('sbdb', () => {
         await db.prisma.user.deleteMany();
     });
 
-    afterAll(async () => {
-        await db.close();
+    afterAll(() => {
         dbContainer?.kill();
     });
 
     it('should create and verify a user', async () => {
-        await db.createUser('bob@email.com', 'bobsPassword');
+        await db.users.createUser('bob@email.com', 'bobsPassword');
 
         await expect(
-            db.verifyUser('bob@email.com', 'bobsPassword'),
+            db.users.verifyUser('bob@email.com', 'bobsPassword'),
         ).resolves.toBeTypeOf('string');
     });
 
     it('should fail to verify a user', async () => {
-        await db.createUser('alice@email.com', 'alicesPassword');
+        await db.users.createUser('alice@email.com', 'alicesPassword');
 
-        await expect(db.verifyUser('alice@email.com', 'wrong')).resolves.toBe(
-            null,
-        );
+        await expect(
+            db.users.verifyUser('alice@email.com', 'wrong'),
+        ).resolves.toBe(null);
     });
 
     it("should fail when user doesn't exist", async () => {
         await expect(
-            db.verifyUser('non-existent@whatever.com', 'heyo'),
+            db.users.verifyUser('non-existent@whatever.com', 'heyo'),
         ).resolves.toBe(null);
     });
 
     describe('With Carol', () => {
         let carol: string;
         beforeAll(async () => {
-            carol = await db.createUser('carol@email.com', 'carolsPassword');
+            carol = await db.users.createUser(
+                'carol@email.com',
+                'carolsPassword',
+            );
         });
 
         it('should create and get a recipe', async () => {
@@ -120,11 +122,12 @@ describe('sbdb', () => {
                 prepTimeSec: 5 * 60,
                 numServings: 1,
                 ingredientAmounts,
+                ownerId: carol,
             } satisfies Awaited<
                 ReturnType<(typeof db)['recipes']['getRecipe']>
             >);
 
-            await expect(db.getUserData(carol)).resolves.toEqual({
+            await expect(db.users.getUserData(carol)).resolves.toEqual({
                 meals: [],
                 rotations: [],
                 recipes: [
@@ -136,8 +139,9 @@ describe('sbdb', () => {
                         prepTimeSec: 5 * 60,
                         numServings: 1,
                         ingredientAmounts,
+                        ownerId: carol,
                     },
-                ],
+                ] satisfies Recipe[],
             });
         });
 
@@ -193,6 +197,7 @@ describe('sbdb', () => {
             await expect(db.meals.getAllMeals()).resolves.toEqual([
                 {
                     name: 'Foobar',
+                    ownerId: carol,
                     recipes: [
                         {
                             id: foo.id,
@@ -202,6 +207,7 @@ describe('sbdb', () => {
                             prepTimeSec: 10,
                             ingredientAmounts: fooIngredients,
                             numServings: 1,
+                            ownerId: carol,
                         },
                         {
                             id: bar.id,
@@ -211,6 +217,7 @@ describe('sbdb', () => {
                             ingredientAmounts: [],
                             numServings: 0,
                             prepTimeSec: 10,
+                            ownerId: carol,
                         },
                     ] satisfies Awaited<
                         ReturnType<typeof db.recipes.getRecipe>
@@ -270,6 +277,7 @@ describe('sbdb', () => {
             ).resolves.toEqual({
                 name: "Carol's first rotation",
                 frequencies: rotationFreqs,
+                ownerId: carol,
                 meals: [
                     {
                         name: 'BazMeal',
@@ -282,10 +290,9 @@ describe('sbdb', () => {
                                 prepTimeSec: 1,
                                 ingredientAmounts: [],
                                 numServings: 0,
+                                ownerId: carol,
                             },
-                        ] satisfies Awaited<
-                            ReturnType<typeof db.recipes.getRecipe>
-                        >[],
+                        ] satisfies Recipe[],
                     },
                 ],
             });

@@ -9,3 +9,8 @@ export {
     Rotation,
     Unit,
 } from '@prisma/client';
+
+export {
+    CreateFrequency,
+    CreateRotation,
+} from './model-controllers/rotations.js';

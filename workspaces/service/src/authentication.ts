@@ -1,10 +1,12 @@
 import assert from 'node:assert';
-import * as express from 'express';
+import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 
 export interface JwtPayload {
-    email: string;
+    userId: string;
 }
+
+export type SbRequest = Request & { user: JwtPayload };
 
 export function signJwt(payload: JwtPayload) {
     // todo -  (get from another file that asserts at service startup)
@@ -24,7 +26,7 @@ export function signJwt(payload: JwtPayload) {
  *
  */
 export function expressAuthentication(
-    request: express.Request,
+    request: Request,
     _: string,
     scopes?: string[],
 ) {

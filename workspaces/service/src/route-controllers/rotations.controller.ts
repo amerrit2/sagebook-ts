@@ -1,13 +1,74 @@
-import { Rotation } from '@sagebook/db-client';
-import { Controller, Get, Query, Route, Security } from 'tsoa';
-import { getDb } from '../db.js';
+import {
+    Request,
+    Controller,
+    Delete,
+    Get,
+    Query,
+    Route,
+    Security,
+    Path,
+    Post,
+    Body,
+    Put,
+} from 'tsoa';
+import { sagebookDb } from '../db.js';
+import { SbRequest } from '../authentication.js';
+import { CreateRotation } from '@sagebook/db-client';
+import { Unpack } from '../helpers.js';
 
+@Security('jwt')
 @Route('rotations')
 export class RotationsController extends Controller {
-    @Security('jwt')
     @Get()
-    public async getRotation(@Query() id: number) {
-        const db = await getDb();
-        return db.rotations.getRotation(id);
+    async getRotation(@Query() id: number) {
+        const rotation = await sagebookDb.rotations.getRotation(id);
+        return rotation as Unpack<typeof rotation>;
+    }
+
+    /**
+     * Create a rotation
+     */
+    @Post()
+    async createRotation(
+        @Body() rotationInput: Omit<CreateRotation, 'ownerId'>,
+        @Request() req: SbRequest,
+    ) {
+        const rotation = await sagebookDb.rotations.createRotation({
+            ownerId: req.user.userId,
+            ...rotationInput,
+        });
+
+        return rotation as Unpack<typeof rotation>;
+    }
+
+    @Delete('{rotationId}')
+    async deleteRotation(
+        @Path() rotationId: number,
+        @Request() req: SbRequest,
+    ) {
+        const rotation = await sagebookDb.rotations.getRotation(rotationId);
+
+        if (!rotation) {
+            this.setStatus(400);
+            return 'Invalid rotationId';
+        }
+
+        if (rotation.ownerId !== req.user.userId) {
+            this.setStatus(400);
+            return 'User not permissioned to delete rotation';
+        }
+
+        await sagebookDb.rotations.deleteRotation(rotationId);
+        return 'Successfully deleted rotation';
+    }
+
+    @Put('{rotationId}')
+    async saveRotation(@Path() rotationId: number, @Request() req: SbRequest) {
+        const rotation = await sagebookDb.rotations.saveRotation({
+            rotationId,
+            userId: req.user.userId,
+        });
+
+        return rotation as Unpack<typeof rotation>;
     }
 }

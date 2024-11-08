@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Route } from 'tsoa';
-import { getDb } from '../db.js';
-import jwt from 'jsonwebtoken';
+import { sagebookDb } from '../db.js';
 import { signJwt } from '../authentication.js';
 
 interface LoginBody {
@@ -12,14 +11,19 @@ interface LoginBody {
 export class LoginController extends Controller {
     @Post()
     public async login(@Body() body: LoginBody) {
-        const db = await getDb();
-        if (!(await db.verifyUser(body.email, body.password))) {
+        let userId: string | null;
+        if (
+            !(userId = await sagebookDb.users.verifyUser(
+                body.email,
+                body.password,
+            ))
+        ) {
             this.setStatus(401);
             return 'Invalid login credentials';
         }
 
         const token = signJwt({
-            email: body.email,
+            userId,
         });
 
         this.setHeader('Set-Cookie', `x-access-token=${token}`);

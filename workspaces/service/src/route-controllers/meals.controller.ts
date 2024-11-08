@@ -1,5 +1,4 @@
 import { SagebookDatabase } from '@sagebook/db-client';
-import { JwtPayload } from 'jsonwebtoken';
 import {
     Route,
     Controller,
@@ -9,39 +8,71 @@ import {
     Get,
     Path,
     Request,
+    Delete,
+    Put,
 } from 'tsoa';
-import { getDb } from '../db.js';
+import { sagebookDb } from '../db.js';
+import { SbRequest } from '../authentication.js';
+import { Unpack } from '../helpers.js';
 
 type CreateMealParams = Omit<
     Parameters<SagebookDatabase['meals']['createMeal']>[0],
     'ownerEmail'
 >;
 
+@Security('jwt')
 @Route('meals')
 export class MealController extends Controller {
-    @Post()
-    @Security('jwt')
-    async createMeal(
-        @Request() request: { user: JwtPayload },
-        @Body() input: CreateMealParams,
-    ) {
-        const db = await getDb();
-
-        return db.meals.createMeal({
-            ...input,
-            ownerId: request.user.email,
-        });
-    }
-
     @Get()
     async getAllMeals() {
-        return (await getDb()).meals.getAllMeals();
+        const meals = await sagebookDb.meals.getAllMeals();
+        return meals as Unpack<typeof meals>;
+    }
+
+    @Post()
+    async createMeal(
+        @Request() request: SbRequest,
+        @Body() input: CreateMealParams,
+    ) {
+        const meal = await sagebookDb.meals.createMeal({
+            ...input,
+            ownerId: request.user.userId,
+        });
+        return meal as Unpack<typeof meal>;
     }
 
     @Get('{mealId}')
     async getMeal(@Path() mealId: number) {
-        const db = await getDb();
+        const meal = await sagebookDb.meals.getMeal(mealId);
+        return meal as Unpack<typeof meal>;
+    }
 
-        return db.meals.getMeal(mealId);
+    @Delete('{mealId}')
+    async deleteMeal(@Path() mealId: number, @Request() req: SbRequest) {
+        const meal = await sagebookDb.meals.getMeal(mealId);
+        if (!meal) {
+            this.setStatus(400);
+            return 'Invalid mealId';
+        }
+
+        if (meal.ownerId !== req.user.userId) {
+            this.setStatus(400);
+            return 'User not permissioned to delete this meal';
+        }
+
+        await sagebookDb.meals.deleteMeal(mealId);
+        return 'Successfully deleted meal';
+    }
+
+    /**
+     * Saves a meal to the user's account
+     */
+    @Put('{mealId}')
+    async saveMeal(@Path() mealId: number, @Request() req: SbRequest) {
+        const userData = await sagebookDb.meals.saveMeal({
+            mealId,
+            userId: req.user.userId,
+        });
+        return userData as Unpack<typeof userData>;
     }
 }

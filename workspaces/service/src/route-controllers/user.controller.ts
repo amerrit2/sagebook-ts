@@ -1,7 +1,7 @@
-import { getDb } from '../db.js';
 import { Body, Controller, Get, Post, Route, Security, Request } from 'tsoa';
-import { Request as ExpressRequest } from 'express';
-import { JwtPayload, signJwt } from '../authentication.js';
+import { SbRequest, signJwt } from '../authentication.js';
+import { sagebookDb } from '../db.js';
+import { Unpack } from '../helpers.js';
 
 @Route('user')
 export class UserController extends Controller {
@@ -10,26 +10,22 @@ export class UserController extends Controller {
      */
     @Security('jwt')
     @Get()
-    public async getUserData(
-        @Request() req: ExpressRequest & { user: JwtPayload },
-    ) {
-        const db = await getDb();
-        return db.getUserData(req.user.email);
-    }
+    async getUserData(@Request() req: SbRequest) {
+        const userData = await sagebookDb.users.getUserData(req.user.userId);
 
+        return userData as Unpack<typeof userData>;
+    }
     /**
      * Creates a new user and creates session jwt
      */
     @Post('create')
-    public async createUser(
-        @Body() requestBody: { email: string; password: string },
-    ) {
-        await (
-            await getDb()
-        ).createUser(requestBody.email, requestBody.password);
-
+    async createUser(@Body() requestBody: { email: string; password: string }) {
+        const userId = await sagebookDb.users.createUser(
+            requestBody.email,
+            requestBody.password,
+        );
         const token = signJwt({
-            email: requestBody.email,
+            userId,
         });
 
         this.setHeader('Set-Cookie', `x-access-token=${token}`);

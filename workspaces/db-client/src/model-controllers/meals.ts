@@ -6,6 +6,7 @@ export class Meals extends ModelController {
         return this.prisma.meal.findMany({
             select: {
                 name: true,
+                ownerId: true,
                 recipes: { select: SelectRecipe },
             },
         });
@@ -47,7 +48,31 @@ export class Meals extends ModelController {
             },
             select: {
                 name: true,
+                ownerId: true,
                 recipes: { select: SelectRecipe },
+            },
+        });
+    }
+
+    deleteMeal(mealId: number) {
+        return this.prisma.meal.delete({
+            where: {
+                id: mealId,
+            },
+        });
+    }
+
+    saveMeal({ mealId, userId }: { userId: string; mealId: number }) {
+        return this.prisma.userData.update({
+            where: {
+                userId,
+            },
+            data: {
+                meals: {
+                    connect: {
+                        id: mealId,
+                    },
+                },
             },
         });
     }

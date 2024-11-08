@@ -77,7 +77,7 @@ model Recipe {
 
   // Owned by
   ownerId String
-  owner   User   @relation(fields: [ownerId], references: [email])
+  owner   User   @relation(fields: [ownerId], references: [id])
 }
 
 model Meal {
@@ -93,7 +93,7 @@ model Meal {
 
   // Owned by
   ownerId String
-  owner   User   @relation(fields: [ownerId], references: [email])
+  owner   User   @relation(fields: [ownerId], references: [id])
 }
 
 enum ActionKind {
@@ -127,7 +127,7 @@ model Rotation {
 
   // Owned by
   ownerId String @db.VarChar(230)
-  owner   User   @relation(fields: [ownerId], references: [email])
+  owner   User   @relation(fields: [ownerId], references: [id])
 }
 
 model User {
