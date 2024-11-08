@@ -17,6 +17,9 @@ const app: express.Application = (express as any).default();
 app.use(urlencoded({ extended: true }));
 app.use(json());
 app.use(cookieParser());
+app.use('/openapi.json', (req, res) => {
+    res.sendFile(resolve(import.meta.dirname, 'tsoa', 'swagger.json'));
+});
 
 app.use(
     '/api-docs',
