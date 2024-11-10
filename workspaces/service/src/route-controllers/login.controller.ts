@@ -11,6 +11,10 @@ interface LoginBody {
 export class LoginController extends Controller {
     @Post()
     public async login(@Body() body: LoginBody) {
+        console.log('Verifying: ', {
+            email: body.email,
+            password: body.password,
+        });
         let userId: string | null;
         if (
             !(userId = await sagebookDb.users.verifyUser(
@@ -18,10 +22,12 @@ export class LoginController extends Controller {
                 body.password,
             ))
         ) {
+            console.log('no go!');
             this.setStatus(401);
             return 'Invalid login credentials';
         }
 
+        console.log('Go');
         const token = signJwt({
             userId,
         });

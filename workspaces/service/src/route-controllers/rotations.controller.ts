@@ -14,7 +14,6 @@ import {
 import { sagebookDb } from '../db.js';
 import { SbRequest } from '../authentication.js';
 import { CreateRotation } from '@sagebook/db-client';
-import { Unpack } from '../helpers.js';
 
 @Security('jwt')
 @Route('rotations')
@@ -22,7 +21,7 @@ export class RotationsController extends Controller {
     @Get()
     async getRotation(@Query() id: number) {
         const rotation = await sagebookDb.rotations.getRotation(id);
-        return rotation as Unpack<typeof rotation>;
+        return rotation;
     }
 
     /**
@@ -38,7 +37,7 @@ export class RotationsController extends Controller {
             ...rotationInput,
         });
 
-        return rotation as Unpack<typeof rotation>;
+        return rotation;
     }
 
     @Delete('{rotationId}')
@@ -69,6 +68,6 @@ export class RotationsController extends Controller {
             userId: req.user.userId,
         });
 
-        return rotation as Unpack<typeof rotation>;
+        return rotation;
     }
 }

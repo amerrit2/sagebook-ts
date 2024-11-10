@@ -5,16 +5,17 @@
   "description": "Sagebook monorepo",
   "type": "module",
   "scripts": {
-    "prepublish": "npm run build",
     "test": "vitest --run",
     "migrate:prisma": "npx -w @sagebook/db-client prisma migrate dev",
     "build:prisma": "npx -w @sagebook/db-client prisma generate",
     "build:tsoa": "npx -w @sagebook/service tsoa spec-and-routes",
-    "build": "npm run build:prisma && tsc --build && npm run build:tsoa",
+    "build": "npm run build:prisma && (tsc --build || (npm run build:tsoa && tsc --build))",
     "watch:prisma": "npx -w @sagebook/db-client prisma generate --watch",
     "watch": "concurrently 'tsc --build --watch' 'npm run watch:prisma'",
     "lint": "eslint **/src/**/*.ts",
-    "clean": "tsc --build --clean",
+    "clean:ts": "tsc --build --clean",
+    "clean": "npm run clean:ts && npm exec --workspaces -- npx rimraf node_modules && npx rimraf node_modules",
+    
     "start": "concurrently 'npm run -w @sagebook/db-client db' 'npm run start:service'",
     "start:service": "npm run -w @sagebook/service start"
   },
@@ -24,15 +25,15 @@
     "./workspaces/*"
   ],
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "@types/node": "^22.8.4",
-    "@types/eslint__js": "^8.42.3",
-    "eslint": "^8.57.0",
     "@eslint/js": "^9.5.0",
-    "typescript-eslint": "^7.13.1",    
-    "vitest": "^1.6.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.8.4",
     "concurrently": "^9.0.1",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^7.13.1",
+    "vitest": "^1.6.0"
   }
 }

@@ -13,7 +13,6 @@ import {
 import type { SagebookDatabase } from '@sagebook/db-client';
 import { sagebookDb } from '../db.js';
 import { JwtPayload, SbRequest } from '../authentication.js';
-import { Unpack } from '../helpers.js';
 
 type CreateRecipeParams = Omit<
     Parameters<SagebookDatabase['recipes']['createRecipe']>[0],
@@ -26,7 +25,7 @@ export class RecipeController extends Controller {
     @Get()
     async getAllRecipes() {
         const recipes = await sagebookDb.recipes.getAllRecipes();
-        return recipes as Unpack<typeof recipes>;
+        return recipes;
     }
 
     @Post()
@@ -39,13 +38,13 @@ export class RecipeController extends Controller {
             ownerId: request.user.userId,
         });
 
-        return recipe as Unpack<typeof recipe>;
+        return recipe;
     }
 
     @Get('{recipeId}')
     async getRecipe(@Path() recipeId: number) {
         const recipe = await sagebookDb.recipes.getRecipe(recipeId);
-        return recipe as Unpack<typeof recipe>;
+        return recipe;
     }
 
     @Delete('{recipeId}')
@@ -73,6 +72,6 @@ export class RecipeController extends Controller {
             userId: req.user.userId,
         });
 
-        return userData as Unpack<typeof userData>;
+        return userData;
     }
 }

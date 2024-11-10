@@ -13,7 +13,6 @@ import {
 } from 'tsoa';
 import { sagebookDb } from '../db.js';
 import { SbRequest } from '../authentication.js';
-import { Unpack } from '../helpers.js';
 
 type CreateMealParams = Omit<
     Parameters<SagebookDatabase['meals']['createMeal']>[0],
@@ -26,7 +25,7 @@ export class MealController extends Controller {
     @Get()
     async getAllMeals() {
         const meals = await sagebookDb.meals.getAllMeals();
-        return meals as Unpack<typeof meals>;
+        return meals;
     }
 
     @Post()
@@ -38,13 +37,13 @@ export class MealController extends Controller {
             ...input,
             ownerId: request.user.userId,
         });
-        return meal as Unpack<typeof meal>;
+        return meal;
     }
 
     @Get('{mealId}')
     async getMeal(@Path() mealId: number) {
         const meal = await sagebookDb.meals.getMeal(mealId);
-        return meal as Unpack<typeof meal>;
+        return meal;
     }
 
     @Delete('{mealId}')
@@ -73,6 +72,6 @@ export class MealController extends Controller {
             mealId,
             userId: req.user.userId,
         });
-        return userData as Unpack<typeof userData>;
+        return userData;
     }
 }

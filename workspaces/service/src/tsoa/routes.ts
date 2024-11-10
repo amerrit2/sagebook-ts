@@ -23,19 +23,14 @@ const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-    "Unpack__meals_58__id-number--name-string--recipes_58__id-number--name-string--numServings-number--instructions-string-Array--prepTimeSec-number--cookTimeSec-number--ownerId-string--ingredientAmounts_58__amount-number--unit_58__36_Enums.Unit--ingredient_58__name-string--dietaryRestrictions_58__36_Enums.DietaryRestrictions-Array__-Array_-Array_-Array--rotations_58__id-number--name-string--meals_58__id-number--name-string--ownerId-string_-Array--frequencies_58__id-number--kind_58__36_Enums.ActionKind--value-number--rotationId-number_-Array_-Array--recipes_58__id-number--name-string--numServings-number--instructions-string-Array--prepTimeSec-number--cookTimeSec-number--ownerId-string--ingredientAmounts_58__amount-number--unit_58__36_Enums.Unit--ingredient_58__name-string--dietaryRestrictions_58__36_Enums.DietaryRestrictions-Array__-Array_-Array__": {
+    "_36_Enums.Unit": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"validators":{}},
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tsp"]},{"dataType":"enum","enums":["tbsp"]},{"dataType":"enum","enums":["cup"]},{"dataType":"enum","enums":["pint"]},{"dataType":"enum","enums":["quart"]},{"dataType":"enum","enums":["gallon"]},{"dataType":"enum","enums":["floz"]},{"dataType":"enum","enums":["oz"]},{"dataType":"enum","enums":["ml"]},{"dataType":"enum","enums":["l"]},{"dataType":"enum","enums":["unit"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Unpack__name-string--ownerId-string--meals_58__name-string--recipes_58__id-number--name-string--ownerId-string--numServings-number--instructions-string-Array--prepTimeSec-number--cookTimeSec-number--ingredientAmounts_58__amount-number--unit_58__36_Enums.Unit--ingredient_58__name-string--dietaryRestrictions_58__36_Enums.DietaryRestrictions-Array__-Array_-Array_-Array--frequencies_58__kind_58__36_Enums.ActionKind--value-number_-Array__": {
+    "_36_Enums.DietaryRestrictions": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Unpack__id-number--name-string--servingsPerMeal-number--ownerId-string__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"validators":{}},
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["gluten"]},{"dataType":"enum","enums":["nuts"]},{"dataType":"enum","enums":["dairy"]},{"dataType":"enum","enums":["keto"]},{"dataType":"enum","enums":["paleo"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "_36_Enums.ActionKind": {
@@ -60,27 +55,12 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_CreateRotation.Exclude_keyofCreateRotation.ownerId__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"frequencies":{"dataType":"array","array":{"dataType":"refAlias","ref":"CreateFrequency"},"required":true},"servingsPerMeal":{"dataType":"double","required":true},"mealIds":{"dataType":"array","array":{"dataType":"double"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"mealIds":{"dataType":"array","array":{"dataType":"double"},"required":true},"frequencies":{"dataType":"array","array":{"dataType":"refAlias","ref":"CreateFrequency"},"required":true},"servingsPerMeal":{"dataType":"double","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Omit_CreateRotation.ownerId_": {
         "dataType": "refAlias",
         "type": {"ref":"Pick_CreateRotation.Exclude_keyofCreateRotation.ownerId__","validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Unpack__userId-string__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Unpack__id-number--name-string--numServings-number--instructions-string-Array--prepTimeSec-number--cookTimeSec-number--ownerId-string--ingredientAmounts_58__amount-number--unit_58__36_Enums.Unit--ingredient_58__name-string--dietaryRestrictions_58__36_Enums.DietaryRestrictions-Array__-Array__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "_36_Enums.Unit": {
-        "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["tsp"]},{"dataType":"enum","enums":["tbsp"]},{"dataType":"enum","enums":["cup"]},{"dataType":"enum","enums":["pint"]},{"dataType":"enum","enums":["quart"]},{"dataType":"enum","enums":["gallon"]},{"dataType":"enum","enums":["floz"]},{"dataType":"enum","enums":["oz"]},{"dataType":"enum","enums":["ml"]},{"dataType":"enum","enums":["l"]},{"dataType":"enum","enums":["unit"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId__": {
@@ -91,11 +71,6 @@ const models: TsoaRoute.Models = {
     "Omit_IngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId_": {
         "dataType": "refAlias",
         "type": {"ref":"Pick_IngredientAmount.Exclude_keyofIngredientAmount.id-or-instructionId-or-ingredientName-or-recipeId__","validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "_36_Enums.DietaryRestrictions": {
-        "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["gluten"]},{"dataType":"enum","enums":["nuts"]},{"dataType":"enum","enums":["dairy"]},{"dataType":"enum","enums":["keto"]},{"dataType":"enum","enums":["paleo"]}],"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "DefaultSelection_Prisma._36_IngredientPayload_": {
@@ -115,7 +90,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"ownerId":{"dataType":"string","required":true},"numServings":{"dataType":"double","required":true},"instructions":{"dataType":"array","array":{"dataType":"string"},"required":true},"prepTimeSec":{"dataType":"double","required":true},"cookTimeSec":{"dataType":"double","required":true},"ingredientAmounts":{"dataType":"array","array":{"dataType":"refAlias","ref":"CreateIngredientAmount"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"ownerId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"instructions":{"dataType":"array","array":{"dataType":"string"},"required":true},"numServings":{"dataType":"double","required":true},"ingredientAmounts":{"dataType":"array","array":{"dataType":"refAlias","ref":"CreateIngredientAmount"},"required":true},"prepTimeSec":{"dataType":"double","required":true},"cookTimeSec":{"dataType":"double","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Omit_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail_": {
@@ -128,19 +103,9 @@ const models: TsoaRoute.Models = {
         "type": {"ref":"Omit_Parameters_SagebookDatabase-at-recipes_91_createRecipe_93___91_0_93_.ownerEmail_","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Unpack__name-string--ownerId-string--recipes_58__id-number--name-string--numServings-number--instructions-string-Array--prepTimeSec-number--cookTimeSec-number--ownerId-string--ingredientAmounts_58__amount-number--unit_58__36_Enums.Unit--ingredient_58__name-string--dietaryRestrictions_58__36_Enums.DietaryRestrictions-Array__-Array_-Array__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Unpack__id-number--name-string--ownerId-string__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.Exclude_keyofParameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"ownerId":{"dataType":"string","required":true},"recipeIds":{"dataType":"array","array":{"dataType":"double"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"ownerId":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"recipeIds":{"dataType":"array","array":{"dataType":"double"},"required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Omit_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail_": {

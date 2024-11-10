@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post, Route, Security, Request } from 'tsoa';
 import { SbRequest, signJwt } from '../authentication.js';
 import { sagebookDb } from '../db.js';
-import { Unpack } from '../helpers.js';
 
 @Route('user')
 export class UserController extends Controller {
@@ -13,7 +12,7 @@ export class UserController extends Controller {
     async getUserData(@Request() req: SbRequest) {
         const userData = await sagebookDb.users.getUserData(req.user.userId);
 
-        return userData as Unpack<typeof userData>;
+        return userData;
     }
     /**
      * Creates a new user and creates session jwt

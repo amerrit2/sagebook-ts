@@ -3,12 +3,16 @@
     "noImplicitAdditionalProperties": "throw-on-extras",
     "controllerPathGlobs": ["src/**/*.controller.ts"],
     "spec": {
+      "specFileBaseName": "openapi",
+      "host": "localhost:3000",
+      "schemes": ["http", "https"],
       "outputDirectory": "src/tsoa",
       "specVersion": 3,
       "securityDefinitions": {
         "jwt": {
           "type": "oauth2",
-          "flow": "implicit"
+          "flow": "implicit",
+          "authorizationUrl": "login"
         }
       }
     },
