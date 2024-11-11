@@ -118,6 +118,17 @@ const models: TsoaRoute.Models = {
         "type": {"ref":"Omit_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail_","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "SagebookError": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "message": {"dataType":"string","required":true},
+            "stack": {"dataType":"string"},
+            "code": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "LoginBody": {
         "dataType": "refObject",
         "properties": {

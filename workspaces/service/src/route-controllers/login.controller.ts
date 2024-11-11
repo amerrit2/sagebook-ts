@@ -1,6 +1,18 @@
-import { Body, Controller, Post, Route } from 'tsoa';
+import {
+    Body,
+    Controller,
+    Header,
+    Post,
+    Route,
+    Response,
+    SuccessResponse,
+    Produces,
+    Res,
+} from 'tsoa';
 import { sagebookDb } from '../db.js';
 import { signJwt } from '../authentication.js';
+import { Response as ExResponse } from 'express';
+import { SagebookError } from '../errors.js';
 
 interface LoginBody {
     email: string;
@@ -9,7 +21,11 @@ interface LoginBody {
 
 @Route('login')
 export class LoginController extends Controller {
+    /**
+     * Success response will send token in body
+     */
     @Post()
+    @Response<SagebookError>(401, 'Invalid Credentials')
     public async login(@Body() body: LoginBody) {
         console.log('Verifying: ', {
             email: body.email,
@@ -23,8 +39,7 @@ export class LoginController extends Controller {
             ))
         ) {
             console.log('no go!');
-            this.setStatus(401);
-            return 'Invalid login credentials';
+            throw new SagebookError(401, 'Invalid Credentials');
         }
 
         console.log('Go');
@@ -33,6 +48,6 @@ export class LoginController extends Controller {
         });
 
         this.setHeader('Set-Cookie', `x-access-token=${token}`);
-        return 'Success';
+        return { token };
     }
 }

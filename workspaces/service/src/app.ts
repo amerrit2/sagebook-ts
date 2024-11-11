@@ -1,4 +1,10 @@
-import { json, urlencoded } from 'express';
+import {
+    json,
+    urlencoded,
+    Request as ExRequest,
+    Response as ExResponse,
+    NextFunction,
+} from 'express';
 import * as express from 'express';
 import { RegisterRoutes } from './tsoa/routes.js';
 import Spec from './tsoa/openapi.json' with { type: 'json' };
@@ -9,6 +15,8 @@ import cookieParser from 'cookie-parser';
 import expressWinston from 'express-winston';
 import { transports, format } from 'winston';
 import { resolve } from 'node:path';
+import { ValidateError } from 'tsoa';
+import { SagebookError } from './errors.js';
 
 configDotenv({
     path: resolve(import.meta.dirname, '..', '.env'),
@@ -19,7 +27,7 @@ const app: express.Application = (express as any).default();
 app.use(
     expressWinston.logger({
         transports: [new transports.Console()],
-        format: format.combine(format.colorize(), format.json()),
+        format: format.combine(format.colorize()), // format.json
         meta: true, // optional: control whether you want to log the meta data about the request (default to true)
         msg: 'HTTP {{req.method}} {{req.url}}', // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
         expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
@@ -47,6 +55,30 @@ app.use(
 );
 
 RegisterRoutes(app);
+
+app.use(function errorHandler(
+    err: unknown,
+    req: ExRequest,
+    res: ExResponse,
+    next: NextFunction,
+) {
+    if (err instanceof ValidateError) {
+        console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
+        res.status(422).json({
+            name: err.name,
+            message: 'Validation Failed',
+            details: err?.fields,
+        });
+    } else if (err instanceof SagebookError) {
+        res.status(err.code).json({
+            name: err.name,
+            message: err.message,
+            code: err.code,
+        });
+    }
+
+    next();
+});
 
 app.listen(3000, () => {
     console.log('Listening on port ', 3000);
