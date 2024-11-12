@@ -42,6 +42,30 @@
 					"orderIn"
 				]
 			},
+			"SagebookError": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"message": {
+						"type": "string"
+					},
+					"stack": {
+						"type": "string"
+					},
+					"code": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"name",
+					"message",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Pick_Frequency.Exclude_keyofFrequency.id-or-rotationId__": {
 				"properties": {
 					"kind": {
@@ -245,30 +269,6 @@
 			},
 			"CreateMealParams": {
 				"$ref": "#/components/schemas/Omit_Parameters_SagebookDatabase-at-meals_91_createMeal_93___91_0_93_.ownerEmail_"
-			},
-			"SagebookError": {
-				"properties": {
-					"name": {
-						"type": "string"
-					},
-					"message": {
-						"type": "string"
-					},
-					"stack": {
-						"type": "string"
-					},
-					"code": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"name",
-					"message",
-					"code"
-				],
-				"type": "object",
-				"additionalProperties": false
 			},
 			"LoginBody": {
 				"properties": {
@@ -613,7 +613,25 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "string"
+									"properties": {
+										"token": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"token"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid Credentials",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SagebookError"
 								}
 							}
 						}
@@ -1728,7 +1746,9 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"token": {}
+										"token": {
+											"type": "string"
+										}
 									},
 									"required": [
 										"token"

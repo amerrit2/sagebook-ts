@@ -26,7 +26,7 @@ export class LoginController extends Controller {
      */
     @Post()
     @Response<SagebookError>(401, 'Invalid Credentials')
-    public async login(@Body() body: LoginBody) {
+    public async login(@Body() body: LoginBody): Promise<{ token: string }> {
         console.log('Verifying: ', {
             email: body.email,
             password: body.password,

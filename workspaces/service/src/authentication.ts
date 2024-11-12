@@ -31,7 +31,11 @@ export function expressAuthentication(
     scopes?: string[],
 ) {
     const token =
-        request.headers['x-access-token'] || request.cookies['x-access-token'];
+        request.headers['x-access-token'] ||
+        request.cookies['x-access-token'] ||
+        request.headers['authorization'];
+
+    console.log('Got token: ', token);
 
     return new Promise((resolve, reject) => {
         assert(process.env.TOKEN_SECRET);
